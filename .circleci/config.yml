@@ -1,18 +1,50 @@
 version: 2
 
+defaults: &defaults
+  docker:
+    - image: circleci/node:8-browsers
+  working_director: ~/puppeteer-devtools
+
+npm_cache_key: &npm_cache_key
+  v1-node-modules-cache-{{ checksum "package-lock.json" }}
+
+restore_node_modules_cache: &restore_node_modules_cache
+  restore_cache:
+    keys:
+      - *npm_cache_key
+      - v1-node-modules-cache-
+
 jobs:
-  build:
-    docker:
-      - image: circleci/node:8-browsers
+  dependencies:
+    <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            - v1-dependencies-
+      - <<: *restore_node_modules_cache
       - run: npm ci
       - save_cache:
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+          key: *npm_cache_key
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *restore_node_modules_cache
       - run: npm run coverage
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *restore_node_modules_cache
+      - run: npm run lint
+
+workflows:
+  version: 2
+  build:
+    - dependencies
+    - test:
+      requires:
+        - dependencies
+    - lint:
+      requires:
+        - dependencies
