@@ -39,16 +39,17 @@ async function getDevtoolsPanel(
 
   const devtools = await getDevtools(page)
 
-  // Wait for UI.viewManager to become available and open the devtools extension tab
-  await devtools.waitForFunction(
-    /* istanbul ignore next */
-    () => 'UI' in window,
-    { timeout }
-  )
-
   let extensionPanelTarget: any
 
   try {
+    // Wait for UI.viewManager to become available
+    await devtools.waitForFunction(
+      /* istanbul ignore next */
+      () => 'UI' in window,
+      { timeout }
+    )
+
+    // Check that the UI.viewManager has a chrome-extension target available
     await devtools.waitForFunction(
       `
       !!Array.from(UI.viewManager._views.keys())
@@ -56,6 +57,8 @@ async function getDevtoolsPanel(
     `,
       { timeout }
     )
+
+    // Once available, swap to the bundled chrome-extension devtools view
     await devtools.evaluate(`
       const extensionPanelView = Array.from(UI.viewManager._views.keys())
         .find(key => key.startsWith('${extensionUrl}'))
@@ -86,6 +89,8 @@ async function getDevtoolsPanel(
 
   // Get the targeted target's page and frame
   const panel = await extensionPanelTarget.page()
+
+  // The extension panel should be the first embedded frame of the targeted page
   const [panelFrame] = await panel.frames()
 
   return panelFrame
