@@ -4,13 +4,13 @@ Extended puppeteer methods for getting extension devtools contexts
 
 ## Install
 
-`npm install --save-dev puppeteer-extension`
+`npm install --save-dev puppeteer-devtools`
 
 ## Usage
 
 ```js
 const puppeteer = require('puppeteer')
-const { getDevtoolsPanel } = require('puppeteer-extension')
+const { getDevtoolsPanel } = require('puppeteer-devtools')
 const path = require('path')
 
 const extension = path.resolve(__dirname, '/path/to/extension')
