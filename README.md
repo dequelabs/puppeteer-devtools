@@ -13,7 +13,7 @@ const puppeteer = require('puppeteer')
 const { getDevtoolsPanel } = require('puppeteer-devtools')
 const path = require('path')
 
-const extension = path.resolve(__dirname, '/path/to/extension')
+const extension = path.resolve('/path/to/extension')
 
 const browser = await puppeteer.launch({
   args: [
