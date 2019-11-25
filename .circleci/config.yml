@@ -41,10 +41,11 @@ jobs:
 workflows:
   version: 2
   build:
-    - dependencies
-    - test:
-      requires:
-        - dependencies
-    - lint:
-      requires:
-        - dependencies
+    jobs:
+      - dependencies
+      - test:
+          requires:
+            - dependencies
+      - lint:
+          requires:
+            - dependencies
