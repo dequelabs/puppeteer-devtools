@@ -4,6 +4,9 @@
   "description": "Extended puppeteer methods for getting extension devtools contexts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "npm-run-all build:definition build:ts",
     "build:definition": "tsc --emitDeclarationOnly",
