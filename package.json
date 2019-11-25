@@ -4,9 +4,6 @@
   "description": "Extended puppeteer methods for getting extension devtools contexts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "npm-run-all build:definition build:ts",
     "build:definition": "tsc --emitDeclarationOnly",
@@ -16,6 +13,7 @@
     "fmt": "prettier --write *.{md,js,json} 'src/**/*.{md,ts,json}'",
     "lint": "tslint --project tsconfig.json 'src/**/*.{ts}'",
     "prebuild": "npm-run-all clean:*",
+    "prepare": "npm run build",
     "release": "npm run standard-version",
     "test": "ava --verbose test/test.ts"
   },
