@@ -17,8 +17,8 @@
     "lint": "tslint --project tsconfig.json 'src/**/*.{ts}'",
     "prebuild": "npm-run-all clean:*",
     "prepare": "npm run build",
-    "release": "npm run standard-version",
-    "test": "ava --verbose test/test.ts"
+    "release": "standard-version",
+    "test": "ava --verbose test/*.ts"
   },
   "author": "Jason Wilson <jason.wilson@deque.com>",
   "license": "UNLICENSED",

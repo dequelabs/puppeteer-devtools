@@ -1,6 +1,8 @@
 # puppeteer-devtools
 
-Extended puppeteer methods for getting extension devtools contexts
+Extended puppeteer methods for getting extension devtools contexts.
+
+> This package relies on using internal puppeteer methods to return the Chrome devtools panel, along with extension panels. Since it is dependent on undocumented puppeteer apis, it could break in future versions of Chrome/puppeteer so use at your own risk.
 
 ## Install
 
@@ -49,4 +51,4 @@ Returns the underlying Chrome `chrome-extension://` panel as a `Promise<Frame>`.
 
 ## License
 
-???
+UNLICENSED
