@@ -36,7 +36,7 @@ Note: `devtools` must be enabled, and `headless` mode must be turned off. Chrome
 
 ### async getDevtools( page, options? )
 
-Returns the underlying Chrome `devtools://` page as a `Promise<Page>`.
+Returns the underlying Chrome `devtools://` page as a <code>Promise<[Page](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)></code>.
 
 - **`page`** - <[`Page`](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)> Puppeteer page object.
 - **`options`** - <`object`>
@@ -44,7 +44,7 @@ Returns the underlying Chrome `devtools://` page as a `Promise<Page>`.
 
 ### async getDevtoolsPanel( page, options? )
 
-Returns the underlying Chrome `chrome-extension://` panel as a `Promise<Frame>`.
+Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Frame](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-frame)></code>.
 
 - **`page`** - <[`Page`](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)> Puppeteer page object.
 - **`options`** - <`object`>
