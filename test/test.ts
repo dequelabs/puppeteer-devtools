@@ -30,7 +30,7 @@ test.beforeEach(async t => {
 })
 
 test.afterEach(async t => {
-  let { browser } = t.context
+  const { browser } = t.context
   if (browser) {
     await browser.close()
   }
