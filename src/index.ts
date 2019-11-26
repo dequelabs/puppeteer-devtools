@@ -1,4 +1,4 @@
-import { Page, Frame, errors } from 'puppeteer'
+import { Page, Frame, Target, errors } from 'puppeteer'
 
 const devtoolsUrl = 'devtools://'
 const extensionUrl = 'chrome-extension://'
@@ -10,15 +10,15 @@ async function getDevtools(
   const browser = page.browser()
   const { timeout } = options || {}
 
-  const devtoolsTarget: any = await browser.waitForTarget(
-    target => {
-      return target.url().startsWith(devtoolsUrl)
-    },
-    { timeout }
-  )
+  const devtoolsTarget = await browser.waitForTarget(
+      target => {
+        return target.url().startsWith(devtoolsUrl)
+      },
+      { timeout }
+    )
 
-  // Hack to get puppeteer to allow us to access the page context
-  devtoolsTarget._targetInfo.type = 'page'
+    // Hack to get puppeteer to allow us to access the page context
+  ;(devtoolsTarget as any)._targetInfo.type = 'page'
 
   const devtoolsPage = await devtoolsTarget.page()
   await devtoolsPage.waitForFunction(
@@ -39,7 +39,7 @@ async function getDevtoolsPanel(
 
   const devtools = await getDevtools(page)
 
-  let extensionPanelTarget: any
+  let extensionPanelTarget: Target
 
   try {
     // Wait for UI.viewManager to become available
@@ -50,6 +50,7 @@ async function getDevtoolsPanel(
     )
 
     // Check that the UI.viewManager has a chrome-extension target available
+    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/master/front_end/ui/ViewManager.js
     await devtools.waitForFunction(
       `
       !!Array.from(UI.viewManager._views.keys())
@@ -85,7 +86,7 @@ async function getDevtoolsPanel(
   }
 
   // Hack to get puppeteer to allow us to access the page context
-  extensionPanelTarget._targetInfo.type = 'page'
+  ;(extensionPanelTarget as any)._targetInfo.type = 'page'
 
   // Get the targeted target's page and frame
   const panel = await extensionPanelTarget.page()
