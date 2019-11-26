@@ -30,6 +30,8 @@ const [page] = await browser.pages()
 const panel = await getDevtoolsPanel(page, { panelName: 'panel.html' })
 ```
 
+Note: `devtools` must be enabled, and `headless` mode must be turned off. Chrome [does not currently support extensions in headless mode](https://bugs.chromium.org/p/chromium/issues/detail?id=706008).
+
 ## Methods
 
 ### async getDevtools( page, options? )
