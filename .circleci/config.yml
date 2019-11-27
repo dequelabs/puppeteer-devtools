@@ -1,0 +1,93 @@
+version: 2
+
+defaults: &defaults
+  docker:
+    - image: circleci/node:8-browsers
+  working_director: ~/puppeteer-devtools
+
+npm_cache_key: &npm_cache_key
+  v1-node-modules-cache-{{ checksum "package-lock.json" }}
+
+restore_node_modules_cache: &restore_node_modules_cache
+  restore_cache:
+    keys:
+      - *npm_cache_key
+      - v1-node-modules-cache-
+
+npm_auth: &npm_auth
+  run:
+    name: npm auth
+    command: |
+      npm config set _auth $NPM_AUTH
+      npm config set email $NPM_EMAIL
+      npm config set always-auth true
+      npm config set registry https://agora.dequecloud.com/artifactory/api/npm/attest
+
+jobs:
+  dependencies:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *restore_node_modules_cache
+      - run: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: *npm_cache_key
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *restore_node_modules_cache
+      - run: npm run coverage
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *restore_node_modules_cache
+      - run: npm run lint
+  release_next:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *restore_node_modules_cache
+      - <<: *npm_auth
+      # Tag develop commits with commit hash and push out with next tag
+      - run: npm version "$(node -p 'require("./package.json").version')-next-${CIRCLE_SHA1:0:8}" --no-git-tag-version
+      - run: npm publish --tag next
+  release:
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *restore_node_modules_cache
+      - <<: *npm_auth
+      - run: npm publish
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - dependencies
+      - test:
+          requires:
+            - dependencies
+      - lint:
+          requires:
+            - dependencies
+      - release:
+          requires:
+            - test
+            - lint
+          filters:
+            branches:
+              only:
+                - master
+      - release_next:
+          requires:
+            - test
+            - lint
+          filters:
+            branches:
+              only:
+                - develop
+

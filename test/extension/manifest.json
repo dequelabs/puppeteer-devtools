@@ -1,0 +1,9 @@
+{
+  "manifest_version": 2,
+  "name": "Test Chrome Extension",
+  "description": "Test Chrome Extension",
+  "version": "1.2.3",
+  "devtools_page": "devtools.html",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "web_accessible_resources": ["page.html"]
+}
