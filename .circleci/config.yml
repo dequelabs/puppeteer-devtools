@@ -37,6 +37,7 @@ jobs:
       - checkout
       - <<: *restore_node_modules_cache
       - run: npm run coverage
+      - run: npm run test:ci
   lint:
     <<: *defaults
     steps:
