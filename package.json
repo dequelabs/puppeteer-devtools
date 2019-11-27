@@ -18,8 +18,7 @@
     "prebuild": "npm-run-all clean:*",
     "prepare": "npm run build",
     "release": "standard-version",
-    "test": "ava --verbose test/*.ts",
-    "test:ci": "nyc ava --verbose test/*.ts --tap | npx tap-xunit > ~/test-report.xml"
+    "test": "ava --verbose test/*.ts"
   },
   "author": "Jason Wilson <jason.wilson@deque.com>",
   "license": "UNLICENSED",

@@ -37,7 +37,9 @@ jobs:
       - checkout
       - <<: *restore_node_modules_cache
       - run: npm run coverage
-      - run: npm run test:ci
+      - run: npm run coverage -- --tap | npx tap-xunit > ./coverage/test-report.xml
+      - store_test_results:
+          path: ./coverage
   lint:
     <<: *defaults
     steps:
