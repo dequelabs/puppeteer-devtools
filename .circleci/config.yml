@@ -15,10 +15,13 @@ restore_node_modules_cache: &restore_node_modules_cache
       - v1-node-modules-cache-
 
 npm_auth: &npm_auth
-  - run: npm config set _auth $NPM_AUTH
-  - run: npm config set email $NPM_EMAIL
-  - run: npm config set always-auth true
-  - run: npm config set registry https://agora.dequecloud.com/artifactory/api/npm/attest
+  run:
+    name: npm auth
+    command: |
+      npm config set _auth $NPM_AUTH
+      npm config set email $NPM_EMAIL
+      npm config set always-auth true
+      npm config set registry https://agora.dequecloud.com/artifactory/api/npm/attest
 
 jobs:
   dependencies:
@@ -73,7 +76,6 @@ workflows:
             - dependencies
       - release:
           requires:
-            - dependencies
             - test
             - lint
           filters:
@@ -82,7 +84,6 @@ workflows:
                 - master
       - release_next:
           requires:
-            - dependencies
             - test
             - lint
           filters:
