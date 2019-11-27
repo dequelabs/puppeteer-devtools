@@ -1,0 +1,21 @@
+name: Sync master into develop
+
+on:
+  pull_request:
+    types: [closed]
+    branches: master
+
+jobs:
+  create_sync_pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.pulls.create({
+              ...context.repo,
+              title: 'chore: merge master into develop',
+              head: 'master',
+              base: 'develop'
+            })
