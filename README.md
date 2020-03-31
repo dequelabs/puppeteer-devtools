@@ -55,4 +55,4 @@ Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Fr
 
 ## License
 
-UNLICENSED
+[MPL 2.0](LICENSE)
