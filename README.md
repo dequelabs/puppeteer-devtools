@@ -56,3 +56,7 @@ Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Fr
 ## License
 
 [MPL 2.0](LICENSE)
+
+## Copyright
+
+Copyright (c) 2020 Deque Systems, Inc.
