@@ -17,11 +17,7 @@ restore_node_modules_cache: &restore_node_modules_cache
 npm_auth: &npm_auth
   run:
     name: npm auth
-    command: |
-      npm config set _auth $NPM_AUTH
-      npm config set email $NPM_EMAIL
-      npm config set always-auth true
-      npm config set registry https://agora.dequecloud.com/artifactory/api/npm/attest
+    command: npm config set _auth $NPM_AUTH
 
 jobs:
   dependencies:
