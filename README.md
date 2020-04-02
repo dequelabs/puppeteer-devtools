@@ -59,4 +59,4 @@ Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Fr
 
 ## Copyright
 
-Copyright (c) 2020 Deque Systems, Inc.
+Copyright (c) 2019-2020 Deque Systems, Inc.
