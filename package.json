@@ -1,5 +1,5 @@
 {
-  "name": "@deque/puppeteer-devtools",
+  "name": "puppeteer-devtools",
   "version": "1.0.0",
   "description": "Extended puppeteer methods for getting extension devtools contexts",
   "main": "dist/index.js",
@@ -21,7 +21,14 @@
     "test": "ava --verbose test/*.ts"
   },
   "author": "Jason Wilson <jason.wilson@deque.com>",
-  "license": "UNLICENSED",
+  "license": "MPL-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dequelabs/puppeteer-devtools.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
     "@babel/core": "^7.7.2",
