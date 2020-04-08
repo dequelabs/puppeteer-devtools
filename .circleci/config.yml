@@ -6,13 +6,13 @@ defaults: &defaults
   working_directory: ~/puppeteer-devtools
 
 npm_cache_key: &npm_cache_key
-  v1-node-modules-cache-{{ checksum "package-lock.json" }}
+  v2-node-modules-cache-{{ checksum "package-lock.json" }}
 
 restore_node_modules_cache: &restore_node_modules_cache
   restore_cache:
     keys:
       - *npm_cache_key
-      - v1-node-modules-cache-
+      - v2-node-modules-cache-
 
 npm_auth: &npm_auth
   run:
