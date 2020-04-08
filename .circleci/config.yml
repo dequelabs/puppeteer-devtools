@@ -17,7 +17,7 @@ restore_node_modules_cache: &restore_node_modules_cache
 npm_auth: &npm_auth
   run:
     name: npm auth
-    command: npm config set _auth $NPM_AUTH
+    command: npm config set "//registry.npmjs.org/:_authToken" $NPM_AUTH
 
 jobs:
   dependencies:
