@@ -1,6 +1,7 @@
 # puppeteer-devtools
 
 [![CircleCI](https://circleci.com/gh/dequelabs/puppeteer-devtools.svg?style=shield)](https://circleci.com/gh/dequelabs/puppeteer-devtools)
+[![Version](https://img.shields.io/npm/v/puppeteer-devtools.svg)](https://www.npmjs.com/package/puppeteer-devtools)
 
 Extended puppeteer methods for getting extension devtools contexts.
 
