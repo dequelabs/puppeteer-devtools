@@ -3,7 +3,7 @@ version: 2
 defaults: &defaults
   docker:
     - image: circleci/node:8-browsers
-  working_director: ~/puppeteer-devtools
+  working_directory: ~/puppeteer-devtools
 
 npm_cache_key: &npm_cache_key
   v1-node-modules-cache-{{ checksum "package-lock.json" }}
