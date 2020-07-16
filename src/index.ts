@@ -56,7 +56,7 @@ async function getDevtoolsPanel(
     // Wait for UI.viewManager to become available
     await devtools.waitForFunction(
       /* istanbul ignore next */
-      () => 'UI' in window,
+      () => 'UI' in window && 'viewManager' in (window as any).UI,
       { timeout }
     )
 
