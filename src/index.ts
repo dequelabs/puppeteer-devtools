@@ -13,11 +13,9 @@ import { Page, Frame, Target, errors } from 'puppeteer'
 import {
   DOMWorld,
   ExecutionContext,
-  Protocol,
+  ExecutionContextDescription,
   CDPSession
 } from './puppeteer-adapter'
-
-type ExecutionContextDescription = Protocol.Runtime.ExecutionContextDescription
 
 const devtoolsUrl = 'devtools://'
 const extensionUrl = 'chrome-extension://'
