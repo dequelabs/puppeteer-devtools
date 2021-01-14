@@ -21,7 +21,8 @@ test.beforeEach(async t => {
     const browser = await puppeteer.launch({
       args: [
         `--disable-extensions-except=${pathToExtension}`,
-        `--load-extension=${pathToExtension}`
+        `--load-extension=${pathToExtension}`,
+        ...[process.env.CI ? '--no-sandbox' : '']
       ],
       defaultViewport: null,
       devtools: true,
