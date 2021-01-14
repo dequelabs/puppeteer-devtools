@@ -21,8 +21,8 @@ test.beforeEach(async t => {
     const browser = await puppeteer.launch({
       args: [
         `--disable-extensions-except=${pathToExtension}`,
-        `--load-extension=${pathToExtension}`,
-        ...(process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
+        `--load-extension=${pathToExtension}`
+        // ...(process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
       ],
       defaultViewport: null,
       devtools: true,
@@ -32,20 +32,20 @@ test.beforeEach(async t => {
     const [page] = await browser.pages()
 
     // Respond to https://testpage urls with a fixed fixture page
-    await page.setRequestInterception(true)
-    page.on('request', async request => {
-      if (request.url().startsWith('https://testpage')) {
-        const body = fs.readFileSync(
-          path.resolve(__dirname, 'fixtures/index.html')
-        )
-        return request.respond({
-          body,
-          contentType: 'text/html',
-          status: 200
-        })
-      }
-      return request.continue()
-    })
+    // await page.setRequestInterception(true)
+    // page.on('request', async request => {
+    //   if (request.url().startsWith('https://testpage')) {
+    //     const body = fs.readFileSync(
+    //       path.resolve(__dirname, 'fixtures/index.html')
+    //     )
+    //     return request.respond({
+    //       body,
+    //       contentType: 'text/html',
+    //       status: 200
+    //     })
+    //   }
+    //   return request.continue()
+    // })
 
     t.context = {
       browser,
