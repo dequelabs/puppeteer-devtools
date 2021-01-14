@@ -2,7 +2,7 @@ version: 2
 
 defaults: &defaults
   docker:
-    - image: circleci/node:latest-browsers
+    - image: circleci/node:12-browsers
   working_directory: ~/puppeteer-devtools
 
 npm_cache_key: &npm_cache_key
@@ -25,7 +25,8 @@ jobs:
     steps:
       - checkout
       - <<: *restore_node_modules_cache
-      - run: npm ci
+      # Default to the bundled version of chromium with circleci
+      - run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci
       - save_cache:
           paths:
             - node_modules
