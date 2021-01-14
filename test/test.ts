@@ -15,44 +15,40 @@ const test = testFn as TestInterface<{
 }>
 
 test.beforeEach(async t => {
-  try {
-    const pathToExtension = path.resolve(__dirname, 'extension')
+  const pathToExtension = path.resolve(__dirname, 'extension')
 
-    const browser = await puppeteer.launch({
-      args: [
-        `--disable-extensions-except=${pathToExtension}`,
-        `--load-extension=${pathToExtension}`,
-        ...(process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
-      ],
-      defaultViewport: null,
-      devtools: true,
-      headless: false
-    })
+  const browser = await puppeteer.launch({
+    args: [
+      `--disable-extensions-except=${pathToExtension}`,
+      `--load-extension=${pathToExtension}`,
+      ...(process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
+    ],
+    defaultViewport: null,
+    devtools: true,
+    headless: false
+  })
 
-    const [page] = await browser.pages()
+  const [page] = await browser.pages()
 
-    // Respond to https://testpage urls with a fixed fixture page
-    await page.setRequestInterception(true)
-    page.on('request', async request => {
-      if (request.url().startsWith('https://testpage')) {
-        const body = fs.readFileSync(
-          path.resolve(__dirname, 'fixtures/index.html')
-        )
-        return request.respond({
-          body,
-          contentType: 'text/html',
-          status: 200
-        })
-      }
-      return request.continue()
-    })
-
-    t.context = {
-      browser,
-      page
+  // Respond to https://testpage urls with a fixed fixture page
+  await page.setRequestInterception(true)
+  page.on('request', async request => {
+    if (request.url().startsWith('https://testpage')) {
+      const body = fs.readFileSync(
+        path.resolve(__dirname, 'fixtures/index.html')
+      )
+      return request.respond({
+        body,
+        contentType: 'text/html',
+        status: 200
+      })
     }
-  } catch (ex) {
-    console.log(ex)
+    return request.continue()
+  })
+
+  t.context = {
+    browser,
+    page
   }
 })
 
