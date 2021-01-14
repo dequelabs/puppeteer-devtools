@@ -1,12 +1,8 @@
-version: 2.1
-orbs:
-  puppeteer: threetreeslight/puppeteer@0.1.2
+version: 2
 
 defaults: &defaults
   docker:
     - image: circleci/node:12
-      environment:
-        NODE_ENV: development
   working_directory: ~/puppeteer-devtools
 
 npm_cache_key: &npm_cache_key
