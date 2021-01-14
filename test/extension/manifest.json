@@ -4,6 +4,14 @@
   "description": "Test Chrome Extension",
   "version": "1.2.3",
   "devtools_page": "devtools.html",
+  "content_scripts": [
+    {
+      "matches": ["*://testpage.test/"],
+      "js": ["content.js"],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "web_accessible_resources": ["page.html"]
 }

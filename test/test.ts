@@ -1,7 +1,13 @@
 import testFn, { TestInterface } from 'ava'
 import puppeteer from 'puppeteer'
 import path from 'path'
-import { getDevtools, getDevtoolsPanel } from '../src'
+import fs from 'fs'
+import {
+  setCaptureContentScriptExecutionContexts,
+  getContentScriptExcecutionContext,
+  getDevtools,
+  getDevtoolsPanel
+} from '../src'
 
 const test = testFn as TestInterface<{
   browser: puppeteer.Browser
@@ -22,6 +28,22 @@ test.beforeEach(async t => {
   })
 
   const [page] = await browser.pages()
+
+  // Respond to https://testpage urls with a fixed fixture page
+  await page.setRequestInterception(true)
+  page.on('request', async request => {
+    if (request.url().startsWith('https://testpage')) {
+      const body = fs.readFileSync(
+        path.resolve(__dirname, 'fixtures/index.html')
+      )
+      return request.respond({
+        body,
+        contentType: 'text/html',
+        status: 200
+      })
+    }
+    return request.continue()
+  })
 
   t.context = {
     browser,
@@ -48,6 +70,36 @@ test('should return devtools panel', async t => {
   const body = await devtools.$('body')
   const textContent = await devtools.evaluate(el => el.textContent, body)
   t.is(textContent.trim(), 'devtools panel')
+})
+
+test('should return extension content script execution context', async t => {
+  const { page } = t.context
+  await setCaptureContentScriptExecutionContexts(page, true)
+  await page.goto('https://testpage.test', { waitUntil: 'networkidle2' })
+  const contentExecutionContext = await getContentScriptExcecutionContext(page)
+  const mainFrameContext = await page.evaluate(
+    () => (window as any).extension_content_script
+  )
+  const contentContext = await contentExecutionContext.evaluate(
+    () => (window as any).extension_content_script
+  )
+  t.is(typeof mainFrameContext, 'undefined')
+  t.truthy(contentContext)
+})
+
+test('should throw error when unable to find content script execution context', async t => {
+  const { page } = t.context
+  await page.goto('https://testpage.test', { waitUntil: 'networkidle2' })
+  await t.throwsAsync(async () => await getContentScriptExcecutionContext(page))
+})
+
+test('should throw error when unable to find content script execution context on page without permissions', async t => {
+  const { page } = t.context
+  await setCaptureContentScriptExecutionContexts(page, true)
+  await page.goto('https://testpage.test/that/does/not/have/permission', {
+    waitUntil: 'networkidle2'
+  })
+  await t.throwsAsync(async () => await getContentScriptExcecutionContext(page))
 })
 
 test('should throw error when unable to find devtools panel', async t => {

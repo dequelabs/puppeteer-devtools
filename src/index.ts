@@ -1,5 +1,5 @@
 /*! puppeteer-devtools
- * Copyright (c) 2019-2020 Deque Systems, Inc.
+ * Copyright (c) 2019-2021 Deque Systems, Inc.
  *
  * Your use of this Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,6 +10,14 @@
  * code.
  */
 import { Page, Frame, Target, errors } from 'puppeteer'
+import {
+  DOMWorld,
+  ExecutionContext,
+  Protocol,
+  CDPSession
+} from './puppeteer-adapter'
+
+type ExecutionContextDescription = Protocol.Runtime.ExecutionContextDescription
 
 const devtoolsUrl = 'devtools://'
 const extensionUrl = 'chrome-extension://'
@@ -108,4 +116,76 @@ async function getDevtoolsPanel(
   return panelFrame
 }
 
-export { getDevtools, getDevtoolsPanel }
+async function setCaptureExecutionContexts(
+  page: Page,
+  enable: boolean,
+  predicate: (context: ExecutionContextDescription) => boolean
+) {
+  const client = await page.target().createCDPSession()
+
+  if (enable) {
+    await client.send('Runtime.enable')
+    client.on(
+      'Runtime.executionContextCreated',
+      async ({ context }: { context: ExecutionContextDescription }) => {
+        if (predicate(context)) {
+          client.emit('executionContextCreated', context)
+        }
+      }
+    )
+  }
+
+  if (!enable) {
+    await client.send('Runtime.disable')
+  }
+
+  return client
+}
+
+const contentScriptExecutionContexts = new Map<
+  Page,
+  ExecutionContextDescription
+>()
+async function setCaptureContentScriptExecutionContexts(
+  page: Page,
+  enable: boolean
+) {
+  const client = await setCaptureExecutionContexts(page, enable, context =>
+    context.origin.startsWith(extensionUrl)
+  )
+  client.on(
+    'executionContextCreated',
+    (context: ExecutionContextDescription) => {
+      contentScriptExecutionContexts.set(page, context)
+    }
+  )
+}
+
+async function getContentScriptExcecutionContext(
+  page: Page
+): Promise<ExecutionContext> {
+  const contentScriptExecutionContext = contentScriptExecutionContexts.get(page)
+
+  if (!contentScriptExecutionContext) {
+    throw new Error(
+      `Could not find "${extensionUrl}" content script execution context`
+    )
+  }
+
+  const client = await page.target().createCDPSession()
+  return new ExecutionContext(
+    client as CDPSession,
+    contentScriptExecutionContext,
+    // DOMWorld is used to return the associated frame. Extension execution
+    // contexts don't have an associated frame, so this can be safely ignored
+    // see: https://github.com/puppeteer/puppeteer/blob/9dd1aa302d719bef29e67c33f1f4717f1c0e2b79/src/common/ExecutionContext.ts#L73-L84
+    (null as unknown) as DOMWorld
+  )
+}
+
+export {
+  getDevtools,
+  getDevtoolsPanel,
+  setCaptureContentScriptExecutionContexts,
+  getContentScriptExcecutionContext
+}
