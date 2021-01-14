@@ -32,20 +32,20 @@ test.beforeEach(async t => {
     const [page] = await browser.pages()
 
     // Respond to https://testpage urls with a fixed fixture page
-    // await page.setRequestInterception(true)
-    // page.on('request', async request => {
-    //   if (request.url().startsWith('https://testpage')) {
-    //     const body = fs.readFileSync(
-    //       path.resolve(__dirname, 'fixtures/index.html')
-    //     )
-    //     return request.respond({
-    //       body,
-    //       contentType: 'text/html',
-    //       status: 200
-    //     })
-    //   }
-    //   return request.continue()
-    // })
+    await page.setRequestInterception(true)
+    page.on('request', async request => {
+      if (request.url().startsWith('http://testpage')) {
+        const body = fs.readFileSync(
+          path.resolve(__dirname, 'fixtures/index.html')
+        )
+        return request.respond({
+          body,
+          contentType: 'text/html',
+          status: 200
+        })
+      }
+      return request.continue()
+    })
 
     t.context = {
       browser,
@@ -82,7 +82,7 @@ test.serial(
   async t => {
     const { page } = t.context
     await setCaptureContentScriptExecutionContexts(page, true)
-    await page.goto('https://testpage.test', { waitUntil: 'networkidle2' })
+    await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
     const contentExecutionContext = await getContentScriptExcecutionContext(
       page
     )
@@ -101,7 +101,7 @@ test.serial(
   'should throw error when unable to find content script execution context',
   async t => {
     const { page } = t.context
-    await page.goto('https://testpage.test', { waitUntil: 'networkidle2' })
+    await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
     await t.throwsAsync(
       async () => await getContentScriptExcecutionContext(page)
     )
@@ -113,7 +113,7 @@ test.serial(
   async t => {
     const { page } = t.context
     await setCaptureContentScriptExecutionContexts(page, true)
-    await page.goto('https://testpage.test/that/does/not/have/permission', {
+    await page.goto('http://testpage.test/that/does/not/have/permission', {
       waitUntil: 'networkidle2'
     })
     await t.throwsAsync(
