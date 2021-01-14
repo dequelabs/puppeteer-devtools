@@ -22,7 +22,6 @@ test.beforeEach(async t => {
       args: [
         `--disable-extensions-except=${pathToExtension}`,
         `--load-extension=${pathToExtension}`
-        // ...(process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
       ],
       defaultViewport: null,
       devtools: true,
@@ -63,13 +62,13 @@ test.afterEach.always(async t => {
   }
 })
 
-test.serial('should return devtools page', async t => {
+test('should return devtools page', async t => {
   const { page } = t.context
   const devtools = await getDevtools(page)
   t.regex(await devtools.url(), /^devtools:\/\//)
 })
 
-test.serial('should return devtools panel', async t => {
+test('should return devtools panel', async t => {
   const { page } = t.context
   const devtools = await getDevtoolsPanel(page)
   const body = await devtools.$('body')
@@ -77,57 +76,39 @@ test.serial('should return devtools panel', async t => {
   t.is(textContent.trim(), 'devtools panel')
 })
 
-test.serial(
-  'should return extension content script execution context',
-  async t => {
-    const { page } = t.context
-    await setCaptureContentScriptExecutionContexts(page, true)
-    await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
-    const contentExecutionContext = await getContentScriptExcecutionContext(
-      page
-    )
-    const mainFrameContext = await page.evaluate(
-      () => (window as any).extension_content_script
-    )
-    const contentContext = await contentExecutionContext.evaluate(
-      () => (window as any).extension_content_script
-    )
-    t.is(typeof mainFrameContext, 'undefined')
-    t.truthy(contentContext)
-  }
-)
+test('should return extension content script execution context', async t => {
+  const { page } = t.context
+  await setCaptureContentScriptExecutionContexts(page, true)
+  await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
+  const contentExecutionContext = await getContentScriptExcecutionContext(page)
+  const mainFrameContext = await page.evaluate(
+    () => (window as any).extension_content_script
+  )
+  const contentContext = await contentExecutionContext.evaluate(
+    () => (window as any).extension_content_script
+  )
+  t.is(typeof mainFrameContext, 'undefined')
+  t.truthy(contentContext)
+})
 
-test.serial(
-  'should throw error when unable to find content script execution context',
-  async t => {
-    const { page } = t.context
-    await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
-    await t.throwsAsync(
-      async () => await getContentScriptExcecutionContext(page)
-    )
-  }
-)
+test('should throw error when unable to find content script execution context', async t => {
+  const { page } = t.context
+  await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
+  await t.throwsAsync(async () => await getContentScriptExcecutionContext(page))
+})
 
-test.serial(
-  'should throw error when unable to find content script execution context on page without permissions',
-  async t => {
-    const { page } = t.context
-    await setCaptureContentScriptExecutionContexts(page, true)
-    await page.goto('http://testpage.test/that/does/not/have/permission', {
-      waitUntil: 'networkidle2'
-    })
-    await t.throwsAsync(
-      async () => await getContentScriptExcecutionContext(page)
-    )
-  }
-)
+test('should throw error when unable to find content script execution context on page without permissions', async t => {
+  const { page } = t.context
+  await setCaptureContentScriptExecutionContexts(page, true)
+  await page.goto('http://testpage.test/that/does/not/have/permission', {
+    waitUntil: 'networkidle2'
+  })
+  await t.throwsAsync(async () => await getContentScriptExcecutionContext(page))
+})
 
-test.serial(
-  'should throw error when unable to find devtools panel',
-  async t => {
-    const { page } = t.context
-    await t.throwsAsync(async () =>
-      getDevtoolsPanel(page, { panelName: 'foo.html', timeout: 500 })
-    )
-  }
-)
+test('should throw error when unable to find devtools panel', async t => {
+  const { page } = t.context
+  await t.throwsAsync(async () =>
+    getDevtoolsPanel(page, { panelName: 'foo.html', timeout: 500 })
+  )
+})
