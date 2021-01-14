@@ -22,7 +22,13 @@ test.beforeEach(async t => {
       args: [
         `--disable-extensions-except=${pathToExtension}`,
         `--load-extension=${pathToExtension}`,
-        ...(process.env.CI ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
+        ...(process.env.CI
+          ? [
+              '--no-sandbox',
+              '--disable-setuid-sandbox',
+              '--disable-features=VizDisplayCompositor'
+            ]
+          : [])
       ],
       defaultViewport: null,
       devtools: true,
