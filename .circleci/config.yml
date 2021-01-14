@@ -1,8 +1,8 @@
-version: 2.0
+version: 2
 
 defaults: &defaults
   docker:
-    - image: circleci/node:12-browsers
+    - image: circleci/node:latest-browsers
   working_directory: ~/puppeteer-devtools
 
 npm_cache_key: &npm_cache_key
