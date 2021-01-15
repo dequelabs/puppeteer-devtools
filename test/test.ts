@@ -30,7 +30,7 @@ test.beforeEach(async t => {
 
     const [page] = await browser.pages()
 
-    // Respond to https://testpage urls with a fixed fixture page
+    // Respond to http://testpage urls with a set fixture page
     await page.setRequestInterception(true)
     page.on('request', async request => {
       if (request.url().startsWith('http://testpage')) {
@@ -78,7 +78,7 @@ test('should return devtools panel', async t => {
 
 test('should return extension content script execution context', async t => {
   const { page } = t.context
-  await setCaptureContentScriptExecutionContexts(page, true)
+  await setCaptureContentScriptExecutionContexts(page)
   await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
   const contentExecutionContext = await getContentScriptExcecutionContext(page)
   const mainFrameContext = await page.evaluate(
@@ -99,7 +99,7 @@ test('should throw error when unable to find content script execution context', 
 
 test('should throw error when unable to find content script execution context on page without permissions', async t => {
   const { page } = t.context
-  await setCaptureContentScriptExecutionContexts(page, true)
+  await setCaptureContentScriptExecutionContexts(page)
   await page.goto('http://testpage.test/that/does/not/have/permission', {
     waitUntil: 'networkidle2'
   })

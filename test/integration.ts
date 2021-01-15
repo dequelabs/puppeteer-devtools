@@ -22,3 +22,9 @@ test('puppeteer target should have internal _targetInfo property', async t => {
   t.assert(typeof anyTarget._targetInfo === 'object')
   t.assert(anyTarget._targetInfo.hasOwnProperty('type'))
 })
+
+test('puppeteer should have internal ExecutionContext module', async t => {
+  t.notThrows(() => {
+    require('puppeteer/lib/cjs/puppeteer/common/ExecutionContext')
+  })
+})

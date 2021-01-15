@@ -34,7 +34,7 @@ const browser = await puppeteer.launch({
 })
 
 const [page] = await browser.pages()
-await setCaptureContentScriptExecutionContexts(page, true)
+await setCaptureContentScriptExecutionContexts(page)
 
 await page.goto('https://google.com', { waitUntil: 'networkidle0' })
 const panel = await getDevtoolsPanel(page, { panelName: 'panel.html' })
@@ -64,12 +64,11 @@ Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Fr
   - **`panelName`** - <`string`> The file name of the extension panel to find. A devtools page with `chrome.devtools.panels.create('name', 'icon.png', 'panel.html', (panel) => { ... })` would have `panel.html` as its value.
   - **`timeout`** - <`number | null`> Maximum time in milliseconds to wait for the chrome extension panel to become available. Uses puppeteer's default timeout if not set.
 
-### `async setCaptureContentScriptExecutionContexts( page, enable )`
+### `async setCaptureContentScriptExecutionContexts( page )`
 
 Activating capture content script execution contexts will allow for the usage of an extension's content script [`ExecutionContext`](https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#class-executioncontext). This must be activated before a page is navigated.
 
 - **`page`** - <[`Page`](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)> Puppeteer page object.
-- **`enable`** - <`boolean`> Enable or disable content script execution context capturing
 
 ### `async getContentScriptExcecutionContext( page )`
 

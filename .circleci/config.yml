@@ -28,6 +28,7 @@ jobs:
           command: |
             google-chrome --version
       - <<: *restore_node_modules_cache
+      # Skip the bundled version of chrome; always use the one provided from circle
       - run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci
       - save_cache:
           paths:
