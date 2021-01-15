@@ -24,6 +24,9 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - run:
+          command: |
+            google-chrome --version
       - <<: *restore_node_modules_cache
       - run: npm ci
       - save_cache:
