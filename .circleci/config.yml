@@ -28,7 +28,7 @@ jobs:
           command: |
             google-chrome --version
       - <<: *restore_node_modules_cache
-      - run: npm ci
+      - run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci
       - save_cache:
           paths:
             - node_modules
@@ -38,7 +38,7 @@ jobs:
     steps:
       - checkout
       - <<: *restore_node_modules_cache
-      - run: npm run coverage
+      - run: PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome npm run coverage
   lint:
     <<: *defaults
     steps:
