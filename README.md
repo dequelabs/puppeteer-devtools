@@ -15,7 +15,11 @@ Extended puppeteer methods for getting extension devtools contexts.
 
 ```js
 const puppeteer = require('puppeteer')
-const { getDevtoolsPanel } = require('puppeteer-devtools')
+const {
+  getDevtoolsPanel,
+  setCaptureContentScriptExecutionContexts,
+  getContentScriptExcecutionContext
+} = require('puppeteer-devtools')
 const path = require('path')
 
 const extension = path.resolve('/path/to/extension')
@@ -30,14 +34,20 @@ const browser = await puppeteer.launch({
 })
 
 const [page] = await browser.pages()
+await setCaptureContentScriptExecutionContexts(page)
+
+await page.goto('https://google.com', { waitUntil: 'networkidle0' })
 const panel = await getDevtoolsPanel(page, { panelName: 'panel.html' })
+const contentScriptExecutionContext = await getContentScriptExecutionContext(
+  page
+)
 ```
 
 Note: `devtools` must be enabled, and `headless` mode must be turned off. Chrome [does not currently support extensions in headless mode](https://bugs.chromium.org/p/chromium/issues/detail?id=706008).
 
 ## Methods
 
-### async getDevtools( page, options? )
+### `async getDevtools( page, options? )`
 
 Returns the underlying Chrome `devtools://` page as a <code>Promise<[Page](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)></code>.
 
@@ -45,7 +55,7 @@ Returns the underlying Chrome `devtools://` page as a <code>Promise<[Page](https
 - **`options`** - <`object`>
   - **`timeout`** - <`number | null`> Maximum time in milliseconds to wait for the devtools page to become available. Uses puppeteer's default timeout if not set.
 
-### async getDevtoolsPanel( page, options? )
+### `async getDevtoolsPanel( page, options? )`
 
 Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Frame](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-frame)></code>.
 
@@ -54,10 +64,22 @@ Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Fr
   - **`panelName`** - <`string`> The file name of the extension panel to find. A devtools page with `chrome.devtools.panels.create('name', 'icon.png', 'panel.html', (panel) => { ... })` would have `panel.html` as its value.
   - **`timeout`** - <`number | null`> Maximum time in milliseconds to wait for the chrome extension panel to become available. Uses puppeteer's default timeout if not set.
 
+### `async setCaptureContentScriptExecutionContexts( page )`
+
+Activating capture content script execution contexts will allow for the usage of an extension's content script [`ExecutionContext`](https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#class-executioncontext). This must be activated before a page is navigated.
+
+- **`page`** - <[`Page`](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)> Puppeteer page object.
+
+### `async getContentScriptExcecutionContext( page )`
+
+If `setCaptureContentScriptExecutionContexts` has been enabled for a page, this returns the extension's content script [`ExecutionContext`](https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#class-executioncontext). This will error for pages that the extension does not have permissions for or for extensions that do not have content scripts.
+
+- **`page`** - <[`Page`](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)> Puppeteer page object.
+
 ## License
 
 [MPL 2.0](LICENSE)
 
 ## Copyright
 
-Copyright (c) 2019-2020 Deque Systems, Inc.
+Copyright (c) 2019-2021 Deque Systems, Inc.

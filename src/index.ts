@@ -1,5 +1,5 @@
 /*! puppeteer-devtools
- * Copyright (c) 2019-2020 Deque Systems, Inc.
+ * Copyright (c) 2019-2021 Deque Systems, Inc.
  *
  * Your use of this Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,6 +10,12 @@
  * code.
  */
 import { Page, Frame, Target, errors } from 'puppeteer'
+import {
+  DOMWorld,
+  ExecutionContext,
+  ExecutionContextDescription,
+  CDPSession
+} from './puppeteer-adapter'
 
 const devtoolsUrl = 'devtools://'
 const extensionUrl = 'chrome-extension://'
@@ -108,4 +114,56 @@ async function getDevtoolsPanel(
   return panelFrame
 }
 
-export { getDevtools, getDevtoolsPanel }
+const executionContexts = new Map<Page, ExecutionContextDescription>()
+async function setCaptureExecutionContexts(
+  page: Page,
+  predicate: (context: ExecutionContextDescription) => boolean
+) {
+  const client = await page.target().createCDPSession()
+  const onExecutionContextCreated = async ({
+    context
+  }: {
+    context: ExecutionContextDescription
+  }) => {
+    if (predicate(context)) {
+      executionContexts.set(page, context)
+    }
+  }
+  await client.send('Runtime.enable')
+  client.on('Runtime.executionContextCreated', onExecutionContextCreated)
+}
+
+async function setCaptureContentScriptExecutionContexts(page: Page) {
+  await setCaptureExecutionContexts(page, context =>
+    context.origin.startsWith(extensionUrl)
+  )
+}
+
+async function getContentScriptExcecutionContext(
+  page: Page
+): Promise<ExecutionContext> {
+  const executionContext = executionContexts.get(page)
+
+  if (!executionContext) {
+    throw new Error(
+      `Could not find "${extensionUrl}" content script execution context`
+    )
+  }
+
+  const client = await page.target().createCDPSession()
+  return new ExecutionContext(
+    client as CDPSession,
+    executionContext,
+    // DOMWorld is used to return the associated frame. Extension execution
+    // contexts don't have an associated frame, so this can be safely ignored
+    // see: https://github.com/puppeteer/puppeteer/blob/9dd1aa302d719bef29e67c33f1f4717f1c0e2b79/src/common/ExecutionContext.ts#L73-L84
+    (null as unknown) as DOMWorld
+  )
+}
+
+export {
+  getDevtools,
+  getDevtoolsPanel,
+  setCaptureContentScriptExecutionContexts,
+  getContentScriptExcecutionContext
+}
