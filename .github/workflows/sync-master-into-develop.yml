@@ -15,4 +15,3 @@ jobs:
           pr-title: "chore: merge master into develop"
           pr-reviewers: scurker,schne324
           pr-labels: chore
-          pr-template: .github/PULL_REQUEST_TEMPLATE.md
