@@ -2,7 +2,7 @@ version: 2
 
 defaults: &defaults
   docker:
-    - image: circleci/node:10-browsers
+    - image: circleci/node:14-browsers
   working_directory: ~/puppeteer-devtools
 
 npm_cache_key: &npm_cache_key
@@ -24,8 +24,12 @@ jobs:
     <<: *defaults
     steps:
       - checkout
+      - run:
+          command: |
+            google-chrome --version
       - <<: *restore_node_modules_cache
-      - run: npm ci
+      # Skip the bundled version of chrome; always use the one provided from circle
+      - run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci
       - save_cache:
           paths:
             - node_modules
@@ -35,7 +39,7 @@ jobs:
     steps:
       - checkout
       - <<: *restore_node_modules_cache
-      - run: npm run coverage
+      - run: PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome npm run coverage
   lint:
     <<: *defaults
     steps:
