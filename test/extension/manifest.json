@@ -6,7 +6,7 @@
   "devtools_page": "devtools.html",
   "content_scripts": [
     {
-      "matches": ["*://testpage.test/", "*://testpage.test/anotherpage"],
+      "matches": ["*://testpage.test/", "*://testpage.test/frame"],
       "js": ["content.js"],
       "all_frames": true,
       "run_at": "document_start"
