@@ -134,8 +134,11 @@ async function setCaptureExecutionContexts(
 }
 
 async function setCaptureContentScriptExecutionContexts(page: Page) {
-  await setCaptureExecutionContexts(page, context =>
-    context.origin.startsWith(extensionUrl)
+  await setCaptureExecutionContexts(
+    page,
+    context =>
+      context.origin.startsWith(extensionUrl) &&
+      (page.mainFrame() as any)._id === context.auxData.frameId
   )
 }
 

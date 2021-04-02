@@ -33,6 +33,16 @@ test.beforeEach(async t => {
     // Respond to http://testpage urls with a set fixture page
     await page.setRequestInterception(true)
     page.on('request', async request => {
+      if (request.url() === 'http://testpage.test/frame') {
+        const body = fs.readFileSync(
+          path.resolve(__dirname, 'fixtures/frame.html')
+        )
+        return request.respond({
+          body,
+          contentType: 'text/html',
+          status: 200
+        })
+      }
       if (request.url().startsWith('http://testpage')) {
         const body = fs.readFileSync(
           path.resolve(__dirname, 'fixtures/index.html')
