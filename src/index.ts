@@ -38,6 +38,11 @@ async function getDevtools(
   ;(devtoolsTarget as any)._targetInfo.type = 'page'
 
   const devtoolsPage = await devtoolsTarget.page()
+
+  if (!devtoolsPage) {
+    throw new Error('Unable to return target as a page.')
+  }
+
   await devtoolsPage.waitForFunction(
     /* istanbul ignore next */
     () => document.readyState === 'complete',
@@ -108,6 +113,10 @@ async function getDevtoolsPanel(
   // Get the targeted target's page and frame
   const panel = await extensionPanelTarget.page()
 
+  if (!panel) {
+    throw new Error('Unable to return extension panel target as a page.')
+  }
+
   // The extension panel should be the first embedded frame of the targeted page
   const [panelFrame] = await panel.frames()
 
@@ -155,7 +164,7 @@ async function getContentScriptExcecutionContext(
 
   const client = await page.target().createCDPSession()
   return new ExecutionContext(
-    client as CDPSession,
+    client as unknown as CDPSession,
     executionContext,
     // DOMWorld is used to return the associated frame. Extension execution
     // contexts don't have an associated frame, so this can be safely ignored
