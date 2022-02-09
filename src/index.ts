@@ -44,13 +44,13 @@ async function getContext(
   ;(target as any)._targetInfo.type = 'page'
 
   const contextPage = await target.page()
-  await contextPage.waitForFunction(
+  await contextPage!.waitForFunction(
     /* istanbul ignore next */
     () => document.readyState === 'complete',
     { timeout }
   )
 
-  return contextPage
+  return contextPage!
 }
 
 function getDevtools(page: Page, options?: { timeout?: number }) {
@@ -74,7 +74,7 @@ async function getDevtoolsPanel(
 
   try {
     // Wait for UI.viewManager to become available
-    await devtools.waitForFunction(
+    await devtools!.waitForFunction(
       /* istanbul ignore next */
       () => 'UI' in window && 'viewManager' in (window as any).UI,
       { timeout }
@@ -82,20 +82,20 @@ async function getDevtoolsPanel(
 
     // Check that the UI.viewManager has a chrome-extension target available
     // source: https://github.com/ChromeDevTools/devtools-frontend/blob/master/front_end/ui/ViewManager.js
-    await devtools.waitForFunction(
+    await devtools!.waitForFunction(
       `
-      !!Array.from(UI.viewManager._views.keys())
-        .find(key => key.startsWith('${extensionUrl}'))
-    `,
+        !!Array.from(UI.viewManager._views.keys())
+          .find(key => key.startsWith('${extensionUrl}'))
+      `,
       { timeout }
     )
 
     // Once available, swap to the bundled chrome-extension devtools view
-    await devtools.evaluate(`
-      const extensionPanelView = Array.from(UI.viewManager._views.keys())
-        .find(key => key.startsWith('${extensionUrl}'))
-      UI.viewManager.showView(extensionPanelView);
-    `)
+    await devtools!.evaluate(`
+        const extensionPanelView = Array.from(UI.viewManager._views.keys())
+          .find(key => key.startsWith('${extensionUrl}'))
+        UI.viewManager.showView(extensionPanelView);
+      `)
 
     extensionPanelTarget = await browser.waitForTarget(
       target => {
@@ -123,7 +123,7 @@ async function getDevtoolsPanel(
   const panel = await extensionPanelTarget.page()
 
   // The extension panel should be the first embedded frame of the targeted page
-  const [panelFrame] = await panel.frames()
+  const [panelFrame] = await panel!.frames()
 
   return panelFrame
 }
@@ -169,7 +169,7 @@ async function getContentScriptExcecutionContext(
 
   const client = await page.target().createCDPSession()
   return new ExecutionContext(
-    client as CDPSession,
+    client as any,
     executionContext,
     // DOMWorld is used to return the associated frame. Extension execution
     // contexts don't have an associated frame, so this can be safely ignored
