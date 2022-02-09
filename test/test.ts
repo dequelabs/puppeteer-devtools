@@ -6,7 +6,8 @@ import {
   setCaptureContentScriptExecutionContexts,
   getContentScriptExcecutionContext,
   getDevtools,
-  getDevtoolsPanel
+  getDevtoolsPanel,
+  getBackground
 } from '../src'
 
 const test = testFn as TestInterface<{
@@ -76,6 +77,12 @@ test('should return devtools page', async t => {
   const { page } = t.context
   const devtools = await getDevtools(page)
   t.regex(await devtools.url(), /^devtools:\/\//)
+})
+
+test('should return background page', async t => {
+  const { page } = t.context
+  const background = await getBackground(page)
+  t.regex(await background.url(), /_generated_background_page/)
 })
 
 test('should return devtools panel', async t => {

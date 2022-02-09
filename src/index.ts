@@ -20,31 +20,45 @@ import {
 const devtoolsUrl = 'devtools://'
 const extensionUrl = 'chrome-extension://'
 
-async function getDevtools(
+const isDevtools = (target: Target) => {
+  return target.url().startsWith(devtoolsUrl)
+}
+const isBackground = (target: Target) => {
+  const url = target.url()
+  return (
+    url.startsWith(extensionUrl) && url.includes('generated_background_page')
+  )
+}
+
+async function getContext(
   page: Page,
+  isTarget: (t: Target) => boolean,
   options?: { timeout?: number }
 ): Promise<Page> {
   const browser = page.browser()
   const { timeout } = options || {}
 
-  const devtoolsTarget = await browser.waitForTarget(
-      target => {
-        return target.url().startsWith(devtoolsUrl)
-      },
-      { timeout }
-    )
+  const target = await browser.waitForTarget(isTarget, { timeout })
 
     // Hack to get puppeteer to allow us to access the page context
-  ;(devtoolsTarget as any)._targetInfo.type = 'page'
+  ;(target as any)._targetInfo.type = 'page'
 
-  const devtoolsPage = await devtoolsTarget.page()
-  await devtoolsPage.waitForFunction(
+  const contextPage = await target.page()
+  await contextPage.waitForFunction(
     /* istanbul ignore next */
     () => document.readyState === 'complete',
     { timeout }
   )
 
-  return devtoolsPage
+  return contextPage
+}
+
+function getDevtools(page: Page, options?: { timeout?: number }) {
+  return getContext(page, isDevtools, options)
+}
+
+function getBackground(page: Page, options?: { timeout?: number }) {
+  return getContext(page, isBackground, options)
 }
 
 async function getDevtoolsPanel(
@@ -167,6 +181,7 @@ async function getContentScriptExcecutionContext(
 export {
   getDevtools,
   getDevtoolsPanel,
+  getBackground,
   setCaptureContentScriptExecutionContexts,
   getContentScriptExcecutionContext
 }
