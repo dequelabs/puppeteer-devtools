@@ -55,6 +55,14 @@ Returns the underlying Chrome `devtools://` page as a <code>Promise<[Page](https
 - **`options`** - <`object`>
   - **`timeout`** - <`number | null`> Maximum time in milliseconds to wait for the devtools page to become available. Uses puppeteer's default timeout if not set.
 
+### `async getBackground( page, options? )`
+
+Returns the underlying Chrome background page as a <code>Promise<[Page](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)></code>.
+
+- **`page`** - <[`Page`](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)> Puppeteer page object.
+- **`options`** - <`object`>
+  - **`timeout`** - <`number | null`> Maximum time in milliseconds to wait for the devtools page to become available. Uses puppeteer's default timeout if not set.
+
 ### `async getDevtoolsPanel( page, options? )`
 
 Returns the underlying Chrome `chrome-extension://` panel as a <code>Promise<[Frame](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-frame)></code>.
