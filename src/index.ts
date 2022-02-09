@@ -72,10 +72,10 @@ async function getDevtoolsPanel(
     )
 
     // Check that the UI.viewManager has a chrome-extension target available
-    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
+    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/master/front_end/ui/ViewManager.js
     await devtools.waitForFunction(
       `
-      !!Array.from(UI.panels.keys())
+      !!Object.keys(UI.panels)
         .find(key => key.startsWith('${extensionUrl}'))
     `,
       { timeout }
@@ -83,7 +83,7 @@ async function getDevtoolsPanel(
 
     // Once available, swap to the bundled chrome-extension devtools view
     await devtools.evaluate(`
-      const extensionPanelView = Array.from(UI.viewManager._views.keys())
+      const extensionPanelView = Object.keys(UI.panels)
         .find(key => key.startsWith('${extensionUrl}'))
       UI.viewManager.showView(extensionPanelView);
     `)
