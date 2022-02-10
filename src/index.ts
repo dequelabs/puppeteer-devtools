@@ -38,6 +38,12 @@ async function getDevtools(
   ;(devtoolsTarget as any)._targetInfo.type = 'page'
 
   const devtoolsPage = await devtoolsTarget.page()
+
+  if (!devtoolsPage) {
+    /* istanbul ignore next */
+    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
+  }
+
   await devtoolsPage.waitForFunction(
     /* istanbul ignore next */
     () => document.readyState === 'complete',
@@ -67,10 +73,10 @@ async function getDevtoolsPanel(
     )
 
     // Check that the UI.viewManager has a chrome-extension target available
-    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/master/front_end/ui/ViewManager.js
+    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
     await devtools.waitForFunction(
       `
-      !!Array.from(UI.viewManager._views.keys())
+      !!Object.keys(UI.panels)
         .find(key => key.startsWith('${extensionUrl}'))
     `,
       { timeout }
@@ -78,7 +84,7 @@ async function getDevtoolsPanel(
 
     // Once available, swap to the bundled chrome-extension devtools view
     await devtools.evaluate(`
-      const extensionPanelView = Array.from(UI.viewManager._views.keys())
+      const extensionPanelView = Object.keys(UI.panels)
         .find(key => key.startsWith('${extensionUrl}'))
       UI.viewManager.showView(extensionPanelView);
     `)
@@ -107,6 +113,11 @@ async function getDevtoolsPanel(
 
   // Get the targeted target's page and frame
   const panel = await extensionPanelTarget.page()
+
+  if (!panel) {
+    /* istanbul ignore next */
+    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
+  }
 
   // The extension panel should be the first embedded frame of the targeted page
   const [panelFrame] = await panel.frames()
@@ -155,7 +166,7 @@ async function getContentScriptExcecutionContext(
 
   const client = await page.target().createCDPSession()
   return new ExecutionContext(
-    client as CDPSession,
+    client as unknown as CDPSession,
     executionContext,
     // DOMWorld is used to return the associated frame. Extension execution
     // contexts don't have an associated frame, so this can be safely ignored
