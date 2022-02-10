@@ -20,31 +20,57 @@ import {
 const devtoolsUrl = 'devtools://'
 const extensionUrl = 'chrome-extension://'
 
-async function getDevtools(
+const isDevtools = (target: Target) => {
+  return target.url().startsWith(devtoolsUrl)
+}
+const isBackground = (target: Target) => {
+  const url = target.url()
+  return (
+    url.startsWith(extensionUrl) && url.includes('generated_background_page')
+  )
+}
+
+async function getContext(
   page: Page,
+  isTarget: (t: Target) => boolean,
   options?: { timeout?: number }
 ): Promise<Page> {
   const browser = page.browser()
   const { timeout } = options || {}
 
-  const devtoolsTarget = await browser.waitForTarget(
-      target => {
-        return target.url().startsWith(devtoolsUrl)
-      },
-      { timeout }
-    )
+  const target = await browser.waitForTarget(isTarget, { timeout })
 
     // Hack to get puppeteer to allow us to access the page context
-  ;(devtoolsTarget as any)._targetInfo.type = 'page'
+  ;(target as any)._targetInfo.type = 'page'
 
-  const devtoolsPage = await devtoolsTarget.page()
-  await devtoolsPage.waitForFunction(
+  const contextPage = await target.page()
+
+  if (!contextPage) {
+    /* istanbul ignore next */
+    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
+  }
+
+  await contextPage.waitForFunction(
     /* istanbul ignore next */
     () => document.readyState === 'complete',
     { timeout }
   )
 
-  return devtoolsPage
+  return contextPage
+}
+
+async function getDevtools(
+  page: Page,
+  options?: { timeout?: number }
+): Promise<Page> {
+  return getContext(page, isDevtools, options)
+}
+
+async function getBackground(
+  page: Page,
+  options?: { timeout?: number }
+): Promise<Page> {
+  return getContext(page, isBackground, options)
 }
 
 async function getDevtoolsPanel(
@@ -67,10 +93,10 @@ async function getDevtoolsPanel(
     )
 
     // Check that the UI.viewManager has a chrome-extension target available
-    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/master/front_end/ui/ViewManager.js
+    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
     await devtools.waitForFunction(
       `
-      !!Array.from(UI.viewManager._views.keys())
+      !!Object.keys(UI.panels)
         .find(key => key.startsWith('${extensionUrl}'))
     `,
       { timeout }
@@ -78,7 +104,7 @@ async function getDevtoolsPanel(
 
     // Once available, swap to the bundled chrome-extension devtools view
     await devtools.evaluate(`
-      const extensionPanelView = Array.from(UI.viewManager._views.keys())
+      const extensionPanelView = Object.keys(UI.panels)
         .find(key => key.startsWith('${extensionUrl}'))
       UI.viewManager.showView(extensionPanelView);
     `)
@@ -107,6 +133,11 @@ async function getDevtoolsPanel(
 
   // Get the targeted target's page and frame
   const panel = await extensionPanelTarget.page()
+
+  if (!panel) {
+    /* istanbul ignore next */
+    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
+  }
 
   // The extension panel should be the first embedded frame of the targeted page
   const [panelFrame] = await panel.frames()
@@ -155,7 +186,7 @@ async function getContentScriptExcecutionContext(
 
   const client = await page.target().createCDPSession()
   return new ExecutionContext(
-    client as CDPSession,
+    (client as unknown) as CDPSession,
     executionContext,
     // DOMWorld is used to return the associated frame. Extension execution
     // contexts don't have an associated frame, so this can be safely ignored
@@ -167,6 +198,7 @@ async function getContentScriptExcecutionContext(
 export {
   getDevtools,
   getDevtoolsPanel,
+  getBackground,
   setCaptureContentScriptExecutionContexts,
   getContentScriptExcecutionContext
 }
