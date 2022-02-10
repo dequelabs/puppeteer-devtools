@@ -40,7 +40,7 @@ async function getDevtools(
   const devtoolsPage = await devtoolsTarget.page()
 
   if (!devtoolsPage) {
-    throw new Error('Unable to return target as a page.')
+    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
   }
 
   await devtoolsPage.waitForFunction(
@@ -72,7 +72,7 @@ async function getDevtoolsPanel(
     )
 
     // Check that the UI.viewManager has a chrome-extension target available
-    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/master/front_end/ui/ViewManager.js
+    // source: https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
     await devtools.waitForFunction(
       `
       !!Object.keys(UI.panels)
@@ -114,7 +114,7 @@ async function getDevtoolsPanel(
   const panel = await extensionPanelTarget.page()
 
   if (!panel) {
-    throw new Error('Unable to return extension panel target as a page.')
+    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
   }
 
   // The extension panel should be the first embedded frame of the targeted page
