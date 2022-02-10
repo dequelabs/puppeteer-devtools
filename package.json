@@ -51,7 +51,7 @@
     "typescript": "^3.7.2"
   },
   "peerDependencies": {
-    "puppeteer": ">= 5.2.0"
+    "puppeteer": ">= 9.0.0"
   },
   "prettier": {
     "singleQuote": true,
@@ -96,7 +96,7 @@
     "instrument": true,
     "checkCoverage": true,
     "statements": 95,
-    "branches": 88,
+    "branches": 84,
     "functions": 95,
     "lines": 95
   }

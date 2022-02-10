@@ -40,6 +40,7 @@ async function getDevtools(
   const devtoolsPage = await devtoolsTarget.page()
 
   if (!devtoolsPage) {
+    /* istanbul ignore next */
     throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
   }
 
@@ -114,6 +115,7 @@ async function getDevtoolsPanel(
   const panel = await extensionPanelTarget.page()
 
   if (!panel) {
+    /* istanbul ignore next */
     throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
   }
 
