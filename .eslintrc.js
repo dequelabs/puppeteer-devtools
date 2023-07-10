@@ -15,6 +15,7 @@ module.exports = {
   root: true,
   rules: {
     '@typescript-eslint/no-explicit-any': 'off',
+    'comma-dangle': 0
   },
   overrides: [
     {

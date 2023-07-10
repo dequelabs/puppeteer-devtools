@@ -40,7 +40,7 @@ async function getContext(
 
   const target = await browser.waitForTarget(isTarget, { timeout })
 
-    // Hack to get puppeteer to allow us to access the page context
+  // Hack to get puppeteer to allow us to access the page context
   ;(target as any)._targetInfo.type = 'page'
 
   const contextPage = await target.page()
@@ -186,12 +186,12 @@ async function getContentScriptExcecutionContext(
 
   const client = await page.target().createCDPSession()
   return new ExecutionContext(
-    (client as unknown) as CDPSession,
+    client as unknown as CDPSession,
     executionContext,
     // DOMWorld is used to return the associated frame. Extension execution
     // contexts don't have an associated frame, so this can be safely ignored
     // see: https://github.com/puppeteer/puppeteer/blob/9dd1aa302d719bef29e67c33f1f4717f1c0e2b79/src/common/ExecutionContext.ts#L73-L84
-    (null as unknown) as DOMWorld
+    null as unknown as DOMWorld
   )
 }
 

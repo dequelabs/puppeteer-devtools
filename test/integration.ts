@@ -7,7 +7,7 @@ test('puppeteer target should have internal _targetInfo property', async t => {
   await page.goto('about:blank')
 
   const target = await browser.waitForTarget(
-    target => target.url() === 'about:blank',
+    target => target.url() === 'about:blank'
   )
   const anyTarget = target as any
 
