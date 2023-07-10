@@ -1,5 +1,5 @@
 import testFn, { TestInterface } from 'ava'
-import puppeteer from 'puppeteer'
+import puppeteer, { type Browser, type Page } from 'puppeteer'
 import path from 'path'
 import fs from 'fs'
 import {
@@ -7,12 +7,12 @@ import {
   getContentScriptExcecutionContext,
   getDevtools,
   getDevtoolsPanel,
-  getBackground
+  getBackground,
 } from '../src'
 
 const test = testFn as TestInterface<{
-  browser: puppeteer.Browser
-  page: puppeteer.Page
+  browser: Browser
+  page: Page
 }>
 
 test.beforeEach(async t => {
@@ -22,11 +22,11 @@ test.beforeEach(async t => {
     const browser = await puppeteer.launch({
       args: [
         `--disable-extensions-except=${pathToExtension}`,
-        `--load-extension=${pathToExtension}`
+        `--load-extension=${pathToExtension}`,
       ],
       defaultViewport: null,
       devtools: true,
-      headless: false
+      headless: false,
     })
 
     const [page] = await browser.pages()
@@ -36,22 +36,22 @@ test.beforeEach(async t => {
     page.on('request', async request => {
       if (request.url() === 'http://testpage.test/frame') {
         const body = fs.readFileSync(
-          path.resolve(__dirname, 'fixtures/frame.html')
+          path.resolve(__dirname, 'fixtures/frame.html'),
         )
         return request.respond({
           body,
           contentType: 'text/html',
-          status: 200
+          status: 200,
         })
       }
       if (request.url().startsWith('http://testpage')) {
         const body = fs.readFileSync(
-          path.resolve(__dirname, 'fixtures/index.html')
+          path.resolve(__dirname, 'fixtures/index.html'),
         )
         return request.respond({
           body,
           contentType: 'text/html',
-          status: 200
+          status: 200,
         })
       }
       return request.continue()
@@ -59,10 +59,10 @@ test.beforeEach(async t => {
 
     t.context = {
       browser,
-      page
+      page,
     }
   } catch (ex) {
-    console.log(`Did not launch browser: ${ex.message}`)
+    console.log(`Did not launch browser: ${(ex as Error).message}`)
   }
 })
 
@@ -89,8 +89,8 @@ test('should return devtools panel', async t => {
   const { page } = t.context
   const devtools = await getDevtoolsPanel(page)
   const body = await devtools.$('body')
-  const textContent = await devtools.evaluate(el => el.textContent, body)
-  t.is(textContent.trim(), 'devtools panel')
+  const textContent = await devtools.evaluate(el => el?.textContent, body)
+  t.is(textContent?.trim(), 'devtools panel')
 })
 
 test('should return extension content script execution context', async t => {
@@ -99,10 +99,10 @@ test('should return extension content script execution context', async t => {
   await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
   const contentExecutionContext = await getContentScriptExcecutionContext(page)
   const mainFrameContext = await page.evaluate(
-    () => (window as any).extension_content_script
+    () => (window as any).extension_content_script,
   )
   const contentContext = await contentExecutionContext.evaluate(
-    () => (window as any).extension_content_script
+    () => (window as any).extension_content_script,
   )
   t.is(typeof mainFrameContext, 'undefined')
   t.truthy(contentContext)
@@ -118,7 +118,7 @@ test('should throw error when unable to find content script execution context on
   const { page } = t.context
   await setCaptureContentScriptExecutionContexts(page)
   await page.goto('http://testpage.test/that/does/not/have/permission', {
-    waitUntil: 'networkidle2'
+    waitUntil: 'networkidle2',
   })
   await t.throwsAsync(async () => await getContentScriptExcecutionContext(page))
 })
@@ -126,6 +126,6 @@ test('should throw error when unable to find content script execution context on
 test('should throw error when unable to find devtools panel', async t => {
   const { page } = t.context
   await t.throwsAsync(async () =>
-    getDevtoolsPanel(page, { panelName: 'foo.html', timeout: 500 })
+    getDevtoolsPanel(page, { panelName: 'foo.html', timeout: 500 }),
   )
 })

@@ -7,7 +7,7 @@ test('puppeteer target should have internal _targetInfo property', async t => {
   await page.goto('about:blank')
 
   const target = await browser.waitForTarget(
-    target => target.url() === 'about:blank'
+    target => target.url() === 'about:blank',
   )
   const anyTarget = target as any
 
@@ -20,11 +20,11 @@ test('puppeteer target should have internal _targetInfo property', async t => {
   // see: https://github.com/puppeteer/puppeteer/issues/4247
   // see: https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#targettype
   t.assert(typeof anyTarget._targetInfo === 'object')
-  t.assert(anyTarget._targetInfo.hasOwnProperty('type'))
+  t.assert('type' in anyTarget._targetInfo)
 })
 
 test('puppeteer should have internal ExecutionContext module', async t => {
   t.notThrows(() => {
-    require('puppeteer/lib/cjs/puppeteer/common/ExecutionContext')
+    require('puppeteer/lib/cjs/puppeteer/common/ExecutionContext.js')
   })
 })
