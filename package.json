@@ -14,7 +14,7 @@
     "clean:dist": "rimraf dist",
     "coverage": "nyc ava test/*.ts",
     "fmt": "prettier --write *.{md,js,json} 'src/**/*.{md,ts,json}'",
-    "lint": "tslint --project tsconfig.json 'src/**/*.{ts}'",
+    "lint": "eslint .",
     "prebuild": "npm-run-all clean:*",
     "prepare": "npm run build",
     "release": "standard-version",
@@ -34,24 +34,25 @@
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
     "@babel/preset-typescript": "^7.7.2",
-    "@types/puppeteer": "^5.4.2",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
     "ava": "^3.10.1",
+    "eslint": "^8.44.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
     "husky": "^3.1.0",
     "lint-staged": "^12.3.3",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
-    "prettier": "^1.19.1",
-    "puppeteer": "^9.1.1",
+    "prettier": "^3.0.0",
+    "puppeteer": "14.1.1",
     "rimraf": "^3.0.0",
     "standard-version": "^9.3.2",
     "ts-node": "^8.5.2",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.7.2"
+    "typescript": "^5.1.6"
   },
   "peerDependencies": {
-    "puppeteer": ">= 9.0.0"
+    "puppeteer": ">= 9.1.1 <= 14.1.1"
   },
   "prettier": {
     "singleQuote": true,
@@ -60,7 +61,8 @@
     "printWidth": 80,
     "semi": false,
     "tabWidth": 2,
-    "useTabs": false
+    "useTabs": false,
+    "trailingComma": "none"
   },
   "husky": {
     "hooks": {
@@ -68,14 +70,12 @@
     }
   },
   "lint-staged": {
-    "*.{ts}": [
-      "tslint --fix",
-      "prettier --write",
-      "git add"
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
     ],
     "*.{json,md}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "nyc": {
