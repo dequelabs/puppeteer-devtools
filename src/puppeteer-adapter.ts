@@ -1,7 +1,7 @@
-import { DOMWorld } from 'puppeteer/lib/cjs/puppeteer/common/DOMWorld.js'
+import { type DOMWorld } from 'puppeteer/lib/cjs/puppeteer/common/DOMWorld.js'
 import { ExecutionContext } from 'puppeteer/lib/cjs/puppeteer/common/ExecutionContext.js'
 import Protocol from 'devtools-protocol'
-import { CDPSession } from 'puppeteer/lib/cjs/puppeteer/common/Connection.js'
+import { type CDPSession } from 'puppeteer/lib/cjs/puppeteer/common/Connection.js'
 
 export type ExecutionContextDescription =
   Protocol.Runtime.ExecutionContextDescription
