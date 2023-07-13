@@ -2,17 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [3.0.0](https://github.com/dequelabs/puppeteer-devtools/compare/v2.0.1...v3.0.0) (2022-02-10)
-
-
-### ⚠ BREAKING CHANGES
-
-* Updates internal method used to access/control extension panels, rolling to puppeteer@^9
+## [3.1.0](https://github.com/dequelabs/puppeteer-devtools/compare/v3.0.0...v3.1.0) (2023-07-13)
 
 ### Features
 
-* supports getting background page ([#55](https://github.com/dequelabs/puppeteer-devtools/issues/55)) ([65881a1](https://github.com/dequelabs/puppeteer-devtools/commit/65881a1e5f891e5fe4163b574da40aa73e1fa161))
-* update puppeteer to 9.1.1 ([#50](https://github.com/dequelabs/puppeteer-devtools/issues/50)) ([8390e70](https://github.com/dequelabs/puppeteer-devtools/commit/8390e70d8384cc0e3c306dae4bf0debcca85e7e9))
+- upgrade puppeteer to 14.1.1 ([#70](https://github.com/dequelabs/puppeteer-devtools/issues/70)) ([56abb8d](https://github.com/dequelabs/puppeteer-devtools/commit/56abb8d8769a37f4eca346bac15d66c34bb28ffd))
+
+### Bug Fixes
+
+- correct puppeteer imports ([#71](https://github.com/dequelabs/puppeteer-devtools/issues/71)) ([da93565](https://github.com/dequelabs/puppeteer-devtools/commit/da935658143d6c90dabc901ad493205346d322f3))
+
+## [3.0.0](https://github.com/dequelabs/puppeteer-devtools/compare/v2.0.1...v3.0.0) (2022-02-10)
+
+### ⚠ BREAKING CHANGES
+
+- Updates internal method used to access/control extension panels, rolling to puppeteer@^9
+
+### Features
+
+- supports getting background page ([#55](https://github.com/dequelabs/puppeteer-devtools/issues/55)) ([65881a1](https://github.com/dequelabs/puppeteer-devtools/commit/65881a1e5f891e5fe4163b574da40aa73e1fa161))
+- update puppeteer to 9.1.1 ([#50](https://github.com/dequelabs/puppeteer-devtools/issues/50)) ([8390e70](https://github.com/dequelabs/puppeteer-devtools/commit/8390e70d8384cc0e3c306dae4bf0debcca85e7e9))
 
 ### [2.0.1](https://github.com/dequelabs/puppeteer-devtools/compare/v2.0.0...v2.0.1) (2021-04-02)
 
