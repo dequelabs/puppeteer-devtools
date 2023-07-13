@@ -1,5 +1,5 @@
 import testFn, { TestInterface } from 'ava'
-import puppeteer from 'puppeteer'
+import puppeteer, { type Browser, type Page } from 'puppeteer'
 import path from 'path'
 import fs from 'fs'
 import {
@@ -11,8 +11,8 @@ import {
 } from '../src'
 
 const test = testFn as TestInterface<{
-  browser: puppeteer.Browser
-  page: puppeteer.Page
+  browser: Browser
+  page: Page
 }>
 
 test.beforeEach(async t => {
@@ -62,7 +62,7 @@ test.beforeEach(async t => {
       page
     }
   } catch (ex) {
-    console.log(`Did not launch browser: ${ex.message}`)
+    console.log(`Did not launch browser: ${(ex as Error).message}`)
   }
 })
 
@@ -89,8 +89,8 @@ test('should return devtools panel', async t => {
   const { page } = t.context
   const devtools = await getDevtoolsPanel(page)
   const body = await devtools.$('body')
-  const textContent = await devtools.evaluate(el => el.textContent, body)
-  t.is(textContent.trim(), 'devtools panel')
+  const textContent = await devtools.evaluate(el => el?.textContent, body)
+  t.is(textContent?.trim(), 'devtools panel')
 })
 
 test('should return extension content script execution context', async t => {
