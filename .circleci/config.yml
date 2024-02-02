@@ -53,8 +53,12 @@ jobs:
           key: *npm_cache_key
   test:
     <<: *defaults
+    parameters:
+      chrome-version:
+        type: string
     steps:
       - install_chrome
+          chrome-version: << parameters.chrome-version >>
       - checkout
       - <<: *restore_node_modules_cache
       - run: PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome npm run coverage
