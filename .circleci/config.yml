@@ -57,7 +57,7 @@ jobs:
       chrome-version:
         type: string
     steps:
-      - install_chrome
+      - install_chrome:
           chrome-version: << parameters.chrome-version >>
       - checkout
       - <<: *restore_node_modules_cache
