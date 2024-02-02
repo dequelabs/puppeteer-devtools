@@ -50,7 +50,6 @@ jobs:
           key: *npm_cache_key
   test:
     <<: *defaults
-    name: "test-chrome-<< matrix.chrome-version >>"
     steps:
       - install_chrome:
           chrome-version: << matrix.chrome-version >>
@@ -85,6 +84,7 @@ workflows:
     jobs:
       - dependencies
       - test:
+          name: "test-chrome-<< matrix.chrome-version >>"
           matrix:
             parameters:
               chrome-version: ["latest", "102.0.5005.61"]
