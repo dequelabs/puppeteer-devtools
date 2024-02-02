@@ -15,7 +15,7 @@ commands:
         type: string
         default: "latest"
     steps:
-      - browser-tools/install-browser-tools:
+      - browser-tools/install-chrome:
           chrome-version: << parameters.chrome-version >>
       - run:
           command: |
