@@ -79,7 +79,7 @@ async function getBackground(
 // - https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
 // - https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/devtools_compatibility.js
 const devtoolsViewManagementStrategies = [
-  { strategy: 'ui-viewmanager', func: `!!('UI' in window && 'viewManager' in UI && 'showView' in UI.viewManger)` },
+  { strategy: 'ui-viewmanager', func: `!!('UI' in window && 'viewManager' in UI && 'showView' in UI?.viewManger)` },
   { strategy: 'inspectorfrontendapi', func: `!!('InspectorFrontendAPI' in window && 'showPanel' in InspectorFrontendAPI)`}
 ] as const
 type DevtoolsViewManagementStrategies = typeof devtoolsViewManagementStrategies[number]['strategy']
