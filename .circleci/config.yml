@@ -10,6 +10,10 @@ defaults: &defaults
 
 commands:
   install_chrome:
+    parameters:
+      chrome-version:
+        type: string
+        default: "latest"
     steps:
       - browser-tools/install-browser-tools:
           chrome-version: << parameters.chrome-version >>
@@ -49,9 +53,6 @@ jobs:
           key: *npm_cache_key
   test:
     <<: *defaults
-    parameters:
-      chrome-version:
-        type: string
     steps:
       - install_chrome
       - checkout
@@ -81,7 +82,6 @@ jobs:
       - run: npm publish
 
 workflows:
-  version: 2
   build:
     jobs:
       - dependencies
