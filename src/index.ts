@@ -125,21 +125,20 @@ async function getDevtoolsPanel(
     `,
       { timeout }
     )
+    const extensionPanelView = await devtools.evaluate(
+      `
+      Object.keys(UI.panels)
+        .find(key => key.startsWith('${extensionUrl}'))
+    `,
+      { timeout }
+    )
 
     switch(strategy) {
       case 'ui-viewmanager':
-        await devtools.evaluate(`
-          const extensionPanelView = Object.keys(UI.panels)
-            .find(key => key.startsWith('${extensionUrl}'));
-          UI.viewManager.showView(extensionPanelView);
-        `)
+        await devtools.evaluate(`UI.viewManager.showView('${extensionPanelView}')`)
       break;
       case 'inspectorfrontendapi':
-        await devtools.evaluate(`
-          const extensionPanelView = Object.keys(UI.panels)
-            .find(key => key.startsWith('${extensionUrl}'));
-          InspectorFrontendAPI.showPanel(extensionPanelView);
-        `)
+        await devtools.evaluate(`InspectorFrontendAPI.showPanel('${extensionPanelView}')`)
       break;
     }
 
