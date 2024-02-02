@@ -49,6 +49,9 @@ jobs:
           key: *npm_cache_key
   test:
     <<: *defaults
+    parameters:
+      chrome-version:
+        type: string
     steps:
       - install_chrome
       - checkout
