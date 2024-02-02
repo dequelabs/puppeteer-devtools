@@ -1,9 +1,22 @@
 version: 2
 
+orbs:
+  browser-tools: circleci/browser-tools@1.4.6
+
 defaults: &defaults
   docker:
-    - image: circleci/node:14-browsers
+    - image: circleci/node:20-browsers
   working_directory: ~/puppeteer-devtools
+
+commands:
+  install_chrome:
+    steps:
+      - browser-tools/install-browser-tools:
+          chrome-version: << parameters.chrome-version >>
+      - run:
+          command: |
+            google-chrome --version
+          name: Google Chrome Version
 
 npm_cache_key: &npm_cache_key
   v2-node-modules-cache-{{ checksum "package-lock.json" }}
@@ -36,6 +49,7 @@ jobs:
           key: *npm_cache_key
   test:
     <<: *defaults
+    - install_chrome
     steps:
       - checkout
       - <<: *restore_node_modules_cache
@@ -69,6 +83,9 @@ workflows:
     jobs:
       - dependencies
       - test:
+          matrix:
+            parameters:
+              chrome-version: ["latest", "102.0.5002.0"]
           requires:
             - dependencies
       - lint:
