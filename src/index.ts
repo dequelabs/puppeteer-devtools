@@ -73,27 +73,51 @@ async function getBackground(
   return getContext(page, isBackground, options)
 }
 
+// Chrome has different methodologies for view management depending on the version,
+// we need to determine the right strategy for what's available in the current chrome executable
+// reference links: 
+// - https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
+// - https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/devtools_compatibility.js
+const devtoolsViewManagementStrategies = [
+  { strategy: 'ui-viewmanager', func: `!!('UI' in window && 'viewManager' in UI && 'showView' in UI.viewManger)` },
+  { strategy: 'inspectorfrontendapi', func: `!!('InspectorFrontendAPI' in window && 'showPanel' in InspectorFrontendAPI)`}
+] as const
+type DevtoolsViewManagementStrategies = typeof devtoolsViewManagementStrategies[number]['strategy']
+
 async function getDevtoolsPanel(
   page: Page,
   options?: { panelName?: string; timeout?: number }
 ): Promise<Frame> {
   const browser = page.browser()
-  const { panelName = 'panel.html', timeout } = options || {}
+  const { panelName = 'panel.html', timeout = 30000 } = options || {}
 
   const devtools = await getDevtools(page)
 
   let extensionPanelTarget: Target
 
   try {
-    // Wait for UI.viewManager to become available
-    await devtools.waitForFunction(
-      /* istanbul ignore next */
-      () => 'UI' in window && 'viewManager' in (window as any).UI,
-      { timeout }
-    )
+    // Wait for one of the view management strategies to be available
+    let strategy: DevtoolsViewManagementStrategies | void = undefined
+    try {
+      strategy = await Promise.race<DevtoolsViewManagementStrategies | void>([
+        ...devtoolsViewManagementStrategies.map(async ({ strategy, func }) => {
+          await devtools.waitForFunction(func, { timeout })
+          return strategy
+        })
+      ])
+    } catch (err) {
+      if (!(err instanceof errors.TimeoutError)) {
+        throw err
+      }
+    }
 
-    // Check that the UI.viewManager has a chrome-extension target available
+    if (!strategy) {
+      throw new Error(`[${await page.browser().version()}] Unable to find view manager for browser executable.`)
+    }
+
+    // Check that there is an available chrome-extension panel target
     // source: https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
+    await devtools.waitForFunction(`!!('UI' in window && 'panels' in UI)`, { timeout })
     await devtools.waitForFunction(
       `
       !!Object.keys(UI.panels)
@@ -102,12 +126,22 @@ async function getDevtoolsPanel(
       { timeout }
     )
 
-    // Once available, swap to the bundled chrome-extension devtools view
-    await devtools.evaluate(`
-      const extensionPanelView = Object.keys(UI.panels)
-        .find(key => key.startsWith('${extensionUrl}'))
-      UI.viewManager.showView(extensionPanelView);
-    `)
+    switch(strategy) {
+      case 'ui-viewmanager':
+        await devtools.evaluate(`
+          const extensionPanelView = Object.keys(UI.panels)
+            .find(key => key.startsWith('${extensionUrl}'));
+          UI.viewManager.showView(extensionPanelView);
+        `)
+      break;
+      case 'inspectorfrontendapi':
+        await devtools.evaluate(`
+          const extensionPanelView = Object.keys(UI.panels)
+            .find(key => key.startsWith('${extensionUrl}'));
+          InspectorFrontendAPI.showPanel(extensionPanelView);
+        `)
+      break;
+    }
 
     extensionPanelTarget = await browser.waitForTarget(
       target => {
