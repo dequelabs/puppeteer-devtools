@@ -87,7 +87,7 @@ workflows:
       - test:
           matrix:
             parameters:
-              chrome-version: ["latest", "102.0.5002.0"]
+              chrome-version: ["latest", "102.0.5005.61"]
           requires:
             - dependencies
       - lint:
