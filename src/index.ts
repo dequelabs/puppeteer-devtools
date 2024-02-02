@@ -140,9 +140,10 @@ async function getDevtoolsPanel(
       case 'inspectorfrontendapi':
         await devtools.evaluate(`InspectorFrontendAPI.showPanel('${extensionPanelView}')`)
       break;
-      default:
+      default: {
         const unknownStrategy: never = strategy;
         throw new Error(`Unknown strategy: ${unknownStrategy}`);
+      }
     }
 
     extensionPanelTarget = await browser.waitForTarget(
