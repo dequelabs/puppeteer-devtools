@@ -107,6 +107,7 @@ async function getDevtoolsPanel(
       ])
     } catch (err) {
       if (!(err instanceof errors.TimeoutError)) {
+        /* istanbul ignore next */
         throw err
       }
     }
@@ -140,6 +141,7 @@ async function getDevtoolsPanel(
       case 'inspectorfrontendapi':
         await devtools.evaluate(`InspectorFrontendAPI.showPanel('${extensionPanelView}')`)
       break;
+      /* istanbul ignore next */
       default: {
         const unknownStrategy: never = strategy;
         throw new Error(`Unknown strategy: ${unknownStrategy}`);
