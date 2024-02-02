@@ -15,6 +15,7 @@ commands:
         type: string
         default: "latest"
     steps:
+      - run: sudo apt-get update
       - browser-tools/install-chrome:
           chrome-version: << parameters.chrome-version >>
       - run:
