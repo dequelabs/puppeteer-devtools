@@ -109,4 +109,4 @@ If `setCaptureContentScriptExecutionContexts` has been enabled for a page, this 
 
 ## Copyright
 
-Copyright (c) 2019-2021 Deque Systems, Inc.
+Copyright (c) 2019-2024 Deque Systems, Inc.
