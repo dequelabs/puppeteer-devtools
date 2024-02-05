@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/dequelabs/puppeteer-devtools/compare/v3.1.0...v3.2.0) (2024-02-05)
+
+
+### Features
+
+* support changes implemented in devtools frontend api in newer versions of chrome ([#74](https://github.com/dequelabs/puppeteer-devtools/issues/74)) ([e013f8a](https://github.com/dequelabs/puppeteer-devtools/commit/e013f8aa39c0e80a183aeed350155eadf0891ecc))
+
 ## [3.1.0](https://github.com/dequelabs/puppeteer-devtools/compare/v3.0.0...v3.1.0) (2023-07-13)
 
 ### Features

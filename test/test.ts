@@ -1,5 +1,5 @@
-import testFn, { TestInterface } from 'ava'
-import puppeteer, { type Browser, type Page } from 'puppeteer'
+import assert from 'assert'
+import puppeteer from 'puppeteer'
 import path from 'path'
 import fs from 'fs'
 import {
@@ -10,12 +10,7 @@ import {
   getBackground
 } from '../src'
 
-const test = testFn as TestInterface<{
-  browser: Browser
-  page: Page
-}>
-
-test.beforeEach(async t => {
+beforeEach(async function () {
   try {
     const pathToExtension = path.resolve(__dirname, 'extension')
 
@@ -57,7 +52,7 @@ test.beforeEach(async t => {
       return request.continue()
     })
 
-    t.context = {
+    this.context = {
       browser,
       page
     }
@@ -66,66 +61,84 @@ test.beforeEach(async t => {
   }
 })
 
-test.afterEach.always(async t => {
-  const { browser } = t.context
+afterEach(async function() {
+  const { browser } = this.context
   if (browser) {
     await browser.close()
   }
 })
 
-test('should return devtools page', async t => {
-  const { page } = t.context
-  const devtools = await getDevtools(page)
-  t.regex(await devtools.url(), /^devtools:\/\//)
-})
+describe('puppeteer-devtools', () => {
 
-test('should return background page', async t => {
-  const { page } = t.context
-  const background = await getBackground(page)
-  t.regex(await background?.url(), /_generated_background_page/)
-})
-
-test('should return devtools panel', async t => {
-  const { page } = t.context
-  const devtools = await getDevtoolsPanel(page)
-  const body = await devtools.$('body')
-  const textContent = await devtools.evaluate(el => el?.textContent, body)
-  t.is(textContent?.trim(), 'devtools panel')
-})
-
-test('should return extension content script execution context', async t => {
-  const { page } = t.context
-  await setCaptureContentScriptExecutionContexts(page)
-  await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
-  const contentExecutionContext = await getContentScriptExcecutionContext(page)
-  const mainFrameContext = await page.evaluate(
-    () => (window as any).extension_content_script
-  )
-  const contentContext = await contentExecutionContext.evaluate(
-    () => (window as any).extension_content_script
-  )
-  t.is(typeof mainFrameContext, 'undefined')
-  t.truthy(contentContext)
-})
-
-test('should throw error when unable to find content script execution context', async t => {
-  const { page } = t.context
-  await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
-  await t.throwsAsync(async () => await getContentScriptExcecutionContext(page))
-})
-
-test('should throw error when unable to find content script execution context on page without permissions', async t => {
-  const { page } = t.context
-  await setCaptureContentScriptExecutionContexts(page)
-  await page.goto('http://testpage.test/that/does/not/have/permission', {
-    waitUntil: 'networkidle2'
+  it('should return devtools page', async function() {
+    const { page } = this.context
+    const devtools = await getDevtools(page)
+    assert.match(await devtools.url(), /^devtools:\/\//)
   })
-  await t.throwsAsync(async () => await getContentScriptExcecutionContext(page))
-})
 
-test('should throw error when unable to find devtools panel', async t => {
-  const { page } = t.context
-  await t.throwsAsync(async () =>
-    getDevtoolsPanel(page, { panelName: 'foo.html', timeout: 500 })
-  )
+  it('should return background page', async function() {
+    const { page } = this.context
+    const background = await getBackground(page)
+    assert.match(await background?.url(), /_generated_background_page/)
+  })
+
+  it('should return devtools panel', async function() {
+    const { page } = this.context
+    const devtools = await getDevtoolsPanel(page)
+    const body = await devtools.$('body')
+    const textContent = await devtools.evaluate(el => el?.textContent, body)
+    assert.equal(textContent?.trim(), 'devtools panel')
+  })
+
+  it('should throw with no matching strategies for showing devtools panel', async function() {
+    const { page } = this.context
+    const devtools = await getDevtools(page)
+    // remove known chrome public apis to force errors
+    await devtools.evaluate(`
+      delete window.UI
+      delete window.InspectorFrontendAPI
+    `)
+    await assert.rejects(getDevtoolsPanel(page, { timeout: 100 }), (err: Error) => {
+      assert.match(err.message, /Unable to find view manager for browser executable/)
+      return true
+    })
+  })
+
+  it('should return extension content script execution context', async function() {
+    const { page } = this.context
+    await setCaptureContentScriptExecutionContexts(page)
+    await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
+    const contentExecutionContext = await getContentScriptExcecutionContext(page)
+    const mainFrameContext = await page.evaluate(
+      () => (window as any).extension_content_script
+    )
+    const contentContext = await contentExecutionContext.evaluate(
+      () => (window as any).extension_content_script
+    )
+    assert.equal(typeof mainFrameContext, 'undefined')
+    assert(contentContext)
+  })
+
+  it('should throw error when unable to find content script execution context', async function() {
+    const { page } = this.context
+    await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
+    assert.rejects(async () => await getContentScriptExcecutionContext(page))
+  })
+
+  it('should throw error when unable to find content script execution context on page without permissions', async function() {
+    const { page } = this.context
+    await setCaptureContentScriptExecutionContexts(page)
+    await page.goto('http://testpage.test/that/does/not/have/permission', {
+      waitUntil: 'networkidle2'
+    })
+    assert.rejects(async () => await getContentScriptExcecutionContext(page))
+  })
+
+  it('should throw error when unable to find devtools panel', async function() {
+    const { page } = this.context
+    assert.rejects(async () =>
+      getDevtoolsPanel(page, { panelName: 'foo.html', timeout: 500 })
+    )
+  })
+
 })
