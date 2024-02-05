@@ -106,8 +106,8 @@ async function getDevtoolsPanel(
         })
       ])
     } catch (err) {
+      /* istanbul ignore next */
       if (!(err instanceof errors.TimeoutError)) {
-        /* istanbul ignore next */
         throw err
       }
     }
