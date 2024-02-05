@@ -93,6 +93,18 @@ test('should return devtools panel', async t => {
   t.is(textContent?.trim(), 'devtools panel')
 })
 
+test('should throw with no matching strategies for showing devtools panel', async t => {
+  const { page } = t.context
+  const devtools = await getDevtools(page)
+  // remove known chrome public apis to force errors
+  await devtools.evaluate(`
+    delete window.UI
+    delete window.InspectorFrontendAPI
+  `)
+  const error = await t.throwsAsync(getDevtoolsPanel(page, { timeout: 100 }))
+  t.regex(error.message, /Unable to find view manager for browser executable/)
+})
+
 test('should return extension content script execution context', async t => {
   const { page } = t.context
   await setCaptureContentScriptExecutionContexts(page)
