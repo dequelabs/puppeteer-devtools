@@ -18,7 +18,7 @@ const puppeteer = require('puppeteer')
 const {
   getDevtoolsPanel,
   setCaptureContentScriptExecutionContexts,
-  getContentScriptExcecutionContext
+  getContentScriptExecutionContext
 } = require('puppeteer-devtools')
 const path = require('path')
 
@@ -97,7 +97,7 @@ Activating capture content script execution contexts will allow for the usage of
 
 - **`page`** - <[`Page`](https://github.com/puppeteer/puppeteer/blob/master/docs/api.md#class-page)> Puppeteer page object.
 
-### `async getContentScriptExcecutionContext( page )`
+### `async getContentScriptExecutionContext( page )`
 
 If `setCaptureContentScriptExecutionContexts` has been enabled for a page, this returns the extension's content script [`ExecutionContext`](https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#class-executioncontext). This will error for pages that the extension does not have permissions for or for extensions that do not have content scripts.
 
