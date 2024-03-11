@@ -75,7 +75,7 @@ async function getBackground(
 
 // Chrome has different methodologies for view management depending on the version,
 // we need to determine the right strategy for what's available in the current chrome executable
-// reference links: 
+// reference links:
 // - https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/ui/legacy/ViewManager.ts
 // - https://github.com/ChromeDevTools/devtools-frontend/blob/main/front_end/devtools_compatibility.js
 const devtoolsViewManagementStrategies = [
@@ -212,7 +212,7 @@ async function setCaptureContentScriptExecutionContexts(page: Page) {
   )
 }
 
-async function getContentScriptExcecutionContext(
+async function getContentScriptExecutionContext(
   page: Page
 ): Promise<ExecutionContext> {
   const executionContext = executionContexts.get(page)
@@ -239,5 +239,5 @@ export {
   getDevtoolsPanel,
   getBackground,
   setCaptureContentScriptExecutionContexts,
-  getContentScriptExcecutionContext
+  getContentScriptExecutionContext
 }
