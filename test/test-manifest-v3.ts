@@ -76,10 +76,10 @@ describe('puppeteer-devtools (manifest v3)', () => {
     assert.match(await devtools.url(), /^devtools:\/\//)
   })
 
-  it.only('should return background page', async function() {
+  it('should return background page', async function() {
     const { page } = this.context
     const background = await getBackground(page)
-    assert.match(await background?.url(), /_generated_background_page/)
+    assert.match(await background?.url(), /background.js$/)
   })
 
   it('should return devtools panel', async function() {
