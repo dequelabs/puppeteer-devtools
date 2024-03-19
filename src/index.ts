@@ -9,7 +9,7 @@
  * distribute or in any file that contains substantial portions of this source
  * code.
  */
-import { Page, Frame, Target, errors } from 'puppeteer'
+import { Page, WebWorker, Frame, Target, errors } from 'puppeteer'
 import {
   DOMWorld,
   ExecutionContext,
@@ -19,6 +19,10 @@ import {
 
 const devtoolsUrl = 'devtools://'
 const extensionUrl = 'chrome-extension://'
+const types = {
+  page: 'page',
+  serviceWorker: 'service_worker'
+}
 
 const isDevtools = (target: Target) => {
   return target.url().startsWith(devtoolsUrl)
@@ -26,50 +30,87 @@ const isDevtools = (target: Target) => {
 const isBackground = (target: Target) => {
   const url = target.url()
   return (
-    url.startsWith(extensionUrl) && url.includes('generated_background_page')
+    url.startsWith(extensionUrl) && (url.includes('generated_background_page') || target.type() === types.serviceWorker)
   )
+}
+const isPage = (target: Page | WebWorker): target is Page => {
+  // When $ exists, it's most likely a page...
+  return '$' in target && typeof target.$ === 'function'
 }
 
 async function getContext(
   page: Page,
   isTarget: (t: Target) => boolean,
   options?: { timeout?: number }
-): Promise<Page> {
+): Promise<Page | WebWorker> {
   const browser = page.browser()
   const { timeout } = options || {}
 
   const target = await browser.waitForTarget(isTarget, { timeout })
+  const type = target.type()
+  const url = target.url()
 
-  // Hack to get puppeteer to allow us to access the page context
-  ;(target as any)._targetInfo.type = 'page'
+  if (type === types.serviceWorker) {
+    const worker = await target.worker()
+    if (!worker) {
+      /* istanbul ignore next */
+      throw new Error(`Could not convert "${url}" target to a worker.`)
+    }
 
-  const contextPage = await target.page()
+    await worker.evaluate(() => (
+      new Promise(resolve => {
+        // @ts-expect-error addEvent is available in service workers
+        globalThis.addEvent('install', event => {
+          event.waitUntil(resolve)
+        })
+      })
+    ))
 
-  if (!contextPage) {
-    /* istanbul ignore next */
-    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
+    return worker
+  } else {
+    let contextPage: Page | null
+
+    if ('asPage' in target && typeof target.asPage === 'function') {
+      contextPage = await target.asPage()
+    } else {
+      // Hack to get puppeteer to allow us to access the page context
+      ;(target as any)._targetInfo.type = types.page
+      contextPage = await target.page()
+    }
+
+    if (!contextPage) {
+      /* istanbul ignore next */
+      throw new Error(`Could not convert "${url}" target to a page.`)
+    }
+
+    await contextPage.waitForFunction(
+      /* istanbul ignore next */
+      () => document.readyState === 'complete',
+      { timeout }
+    )
+
+    return contextPage
   }
-
-  await contextPage.waitForFunction(
-    /* istanbul ignore next */
-    () => document.readyState === 'complete',
-    { timeout }
-  )
-
-  return contextPage
 }
 
 async function getDevtools(
   page: Page,
   options?: { timeout?: number }
 ): Promise<Page> {
-  return getContext(page, isDevtools, options)
+  const context = await getContext(page, isDevtools, options)
+
+  if (!isPage(context)) {
+    /* istanbul ignore next */
+    throw new Error(`Devtools target "${page.url()}" is not of type page.`)
+  }
+
+  return context
 }
 
 async function getBackground(
   page: Page,
   options?: { timeout?: number }
-): Promise<Page> {
+): Promise<Page | WebWorker> {
   return getContext(page, isBackground, options)
 }
 
@@ -167,15 +208,18 @@ async function getDevtoolsPanel(
     throw err
   }
 
-  // Hack to get puppeteer to allow us to access the page context
-  ;(extensionPanelTarget as any)._targetInfo.type = 'page'
-
-  // Get the targeted target's page and frame
-  const panel = await extensionPanelTarget.page()
+  let panel: Page | null
+  if ('asPage' in extensionPanelTarget && typeof extensionPanelTarget.asPage === 'function') {
+    panel = await extensionPanelTarget.asPage()
+  } else {
+    // Hack to get puppeteer to allow us to access the page context
+    ;(extensionPanelTarget as any)._targetInfo.type = types.page
+    panel = await extensionPanelTarget.page()
+  }
 
   if (!panel) {
     /* istanbul ignore next */
-    throw new Error(`Could not convert "${extensionUrl}" target to a page.`)
+    throw new Error(`Could not convert "${extensionPanelTarget.url()}" target to a page.`)
   }
 
   // The extension panel should be the first embedded frame of the targeted page
