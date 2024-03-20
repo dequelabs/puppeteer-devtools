@@ -57,15 +57,6 @@ async function getContext(
       throw new Error(`Could not convert "${url}" target to a worker.`)
     }
 
-    await worker.evaluate(() => (
-      new Promise(resolve => {
-        // @ts-expect-error addEvent is available in service workers
-        globalThis.addEvent('install', event => {
-          event.waitUntil(resolve)
-        })
-      })
-    ))
-
     return worker
   } else {
     let contextPage: Page | null

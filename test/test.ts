@@ -66,6 +66,7 @@ afterEach(async function() {
   if (browser) {
     await browser.close()
   }
+  this.context = null
 })
 
 describe('puppeteer-devtools', () => {

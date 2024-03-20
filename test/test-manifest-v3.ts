@@ -52,7 +52,7 @@ beforeEach(async function () {
       return request.continue()
     })
 
-    this.context = {
+    this.manifestV3context = {
       browser,
       page
     }
@@ -62,28 +62,29 @@ beforeEach(async function () {
 })
 
 afterEach(async function() {
-  const { browser } = this.context
+  const { browser } = this.manifestV3context
   if (browser) {
     await browser.close()
   }
+  this.manifestV3context = null
 })
 
 describe('puppeteer-devtools (manifest v3)', () => {
 
   it('should return devtools page', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     const devtools = await getDevtools(page)
     assert.match(await devtools.url(), /^devtools:\/\//)
   })
 
   it('should return background page', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     const background = await getBackground(page)
     assert.match(await background?.url(), /background.js$/)
   })
 
   it('should return devtools panel', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     const devtools = await getDevtoolsPanel(page)
     const body = await devtools.$('body')
     const textContent = await devtools.evaluate(el => el?.textContent, body)
@@ -91,7 +92,7 @@ describe('puppeteer-devtools (manifest v3)', () => {
   })
 
   it('should throw with no matching strategies for showing devtools panel', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     const devtools = await getDevtools(page)
     // remove known chrome public apis to force errors
     await devtools.evaluate(`
@@ -105,7 +106,7 @@ describe('puppeteer-devtools (manifest v3)', () => {
   })
 
   it('should return extension content script execution context', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     await setCaptureContentScriptExecutionContexts(page)
     await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
     const contentExecutionContext = await getContentScriptExcecutionContext(page)
@@ -120,13 +121,13 @@ describe('puppeteer-devtools (manifest v3)', () => {
   })
 
   it('should throw error when unable to find content script execution context', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
     assert.rejects(async () => await getContentScriptExcecutionContext(page))
   })
 
   it('should throw error when unable to find content script execution context on page without permissions', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     await setCaptureContentScriptExecutionContexts(page)
     await page.goto('http://testpage.test/that/does/not/have/permission', {
       waitUntil: 'networkidle2'
@@ -135,7 +136,7 @@ describe('puppeteer-devtools (manifest v3)', () => {
   })
 
   it('should throw error when unable to find devtools panel', async function() {
-    const { page } = this.context
+    const { page } = this.manifestV3context
     assert.rejects(async () =>
       getDevtoolsPanel(page, { panelName: 'foo.html', timeout: 500 })
     )
