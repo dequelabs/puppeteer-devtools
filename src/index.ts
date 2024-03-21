@@ -61,6 +61,7 @@ async function getContext(
   } else {
     let contextPage: Page | null
 
+    /* istanbul ignore next */
     if ('asPage' in target && typeof target.asPage === 'function') {
       contextPage = await target.asPage()
     } else {
@@ -166,6 +167,7 @@ async function getDevtoolsPanel(
       { timeout }
     )
 
+    /* istanbul ignore next */
     switch(strategy) {
       case 'ui-viewmanager':
         await devtools.evaluate(`UI.viewManager.showView('${extensionPanelView}')`)
@@ -200,6 +202,7 @@ async function getDevtoolsPanel(
   }
 
   let panel: Page | null
+  /* istanbul ignore next */
   if ('asPage' in extensionPanelTarget && typeof extensionPanelTarget.asPage === 'function') {
     panel = await extensionPanelTarget.asPage()
   } else {
