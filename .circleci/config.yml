@@ -91,7 +91,7 @@ workflows:
           name: "test-chrome-<< matrix.chrome-version >>"
           matrix:
             parameters:
-              chrome-version: ["latest", "115.0.5790.99"]
+              chrome-version: ["latest", "111.0.5563.146"]
           requires:
             - dependencies
       - lint:
