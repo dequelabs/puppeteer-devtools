@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Test Chrome Extension Manifest V3",
+  "description": "Test Chrome Extension Manifest V3",
+  "version": "1.2.3",
+  "devtools_page": "devtools.html",
+  "content_scripts": [
+    {
+      "matches": ["*://testpage.test/", "*://testpage.test/frame"],
+      "js": ["content.js"],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' ; object-src 'self'"
+  },
+  "web_accessible_resources": [{
+    "resources": ["page.html"],
+    "matches": ["<all_urls>"]
+  }]
+}

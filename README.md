@@ -45,6 +45,25 @@ const contentScriptExecutionContext = await getContentScriptExecutionContext(
 
 Note: `devtools` must be enabled, and `headless` mode must be turned off. Chrome [does not currently support extensions in headless mode](https://bugs.chromium.org/p/chromium/issues/detail?id=706008).
 
+### Using a different browser executable
+
+`puppeteer-devtools` currently is [limited to versions of puppeteer &lt; `16.1.0`](https://github.com/dequelabs/puppeteer-devtools/issues/67#issuecomment-1629700824), meaning that in order to use versions of Chrome that are newer than the packaged version, you must use some variation of executable path:
+
+#### `browser.launch`
+
+```ts
+await puppeteer.launch({
+  ...options,
+  executablePath: '/path/to/chrome'
+})
+```
+
+#### Env Var
+
+```sh
+PUPPETEER_EXECUTABLE_PATH=/path/to/chrome npm run tests
+```
+
 ## Methods
 
 ### `async getDevtools( page, options? )`
@@ -90,4 +109,4 @@ If `setCaptureContentScriptExecutionContexts` has been enabled for a page, this 
 
 ## Copyright
 
-Copyright (c) 2019-2021 Deque Systems, Inc.
+Copyright (c) 2019-2024 Deque Systems, Inc.
