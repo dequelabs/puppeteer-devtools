@@ -4,7 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import {
   setCaptureContentScriptExecutionContexts,
-  getContentScriptExcecutionContext,
+  getContentScriptExecutionContext,
   getDevtools,
   getDevtoolsPanel,
   getBackground
@@ -109,7 +109,7 @@ describe('puppeteer-devtools', () => {
     const { page } = this.context
     await setCaptureContentScriptExecutionContexts(page)
     await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
-    const contentExecutionContext = await getContentScriptExcecutionContext(page)
+    const contentExecutionContext = await getContentScriptExecutionContext(page)
     const mainFrameContext = await page.evaluate(
       () => (window as any).extension_content_script
     )
@@ -123,7 +123,7 @@ describe('puppeteer-devtools', () => {
   it('should throw error when unable to find content script execution context', async function() {
     const { page } = this.context
     await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
-    assert.rejects(async () => await getContentScriptExcecutionContext(page))
+    assert.rejects(async () => await getContentScriptExecutionContext(page))
   })
 
   it('should throw error when unable to find content script execution context on page without permissions', async function() {
@@ -132,7 +132,7 @@ describe('puppeteer-devtools', () => {
     await page.goto('http://testpage.test/that/does/not/have/permission', {
       waitUntil: 'networkidle2'
     })
-    assert.rejects(async () => await getContentScriptExcecutionContext(page))
+    assert.rejects(async () => await getContentScriptExecutionContext(page))
   })
 
   it('should throw error when unable to find devtools panel', async function() {
