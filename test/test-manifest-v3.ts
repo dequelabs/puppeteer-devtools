@@ -4,7 +4,7 @@ import path from 'path'
 import fs from 'fs'
 import {
   setCaptureContentScriptExecutionContexts,
-  getContentScriptExcecutionContext,
+  getContentScriptExecutionContext,
   getDevtools,
   getDevtoolsPanel,
   getBackground
@@ -109,7 +109,7 @@ describe('puppeteer-devtools (manifest v3)', () => {
     const { page } = this.manifestV3context
     await setCaptureContentScriptExecutionContexts(page)
     await page.goto('http://testpage.test', { waitUntil: 'networkidle2' })
-    const contentExecutionContext = await getContentScriptExcecutionContext(page)
+    const contentExecutionContext = await getContentScriptExecutionContext(page)
     const mainFrameContext = await page.evaluate(
       () => (window as any).extension_content_script
     )

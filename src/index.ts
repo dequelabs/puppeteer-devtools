@@ -250,7 +250,7 @@ async function setCaptureContentScriptExecutionContexts(page: Page) {
   )
 }
 
-async function getContentScriptExcecutionContext(
+async function getContentScriptExecutionContext(
   page: Page
 ): Promise<ExecutionContext> {
   const executionContext = executionContexts.get(page)
@@ -277,5 +277,5 @@ export {
   getDevtoolsPanel,
   getBackground,
   setCaptureContentScriptExecutionContexts,
-  getContentScriptExcecutionContext
+  getContentScriptExecutionContext
 }
