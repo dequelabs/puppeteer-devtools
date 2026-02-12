@@ -32,6 +32,14 @@ restore_node_modules_cache: &restore_node_modules_cache
       - *npm_cache_key
       - v2-node-modules-cache-
 
+checkout_https: &checkout_https
+  run:
+    name: Checkout code (HTTPS)
+    command: |
+      git clone --depth 1 https://github.com/dequelabs/puppeteer-devtools.git .
+      git fetch origin "$CIRCLE_SHA"
+      git checkout "$CIRCLE_SHA"
+
 npm_auth: &npm_auth
   run:
     name: npm auth
@@ -41,7 +49,7 @@ jobs:
   dependencies:
     <<: *defaults
     steps:
-      - checkout
+      - <<: *checkout_https
       - <<: *restore_node_modules_cache
       # Skip the bundled version of chrome; always use the one provided from circle
       - run: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm ci
@@ -57,19 +65,19 @@ jobs:
     steps:
       - install_chrome:
           chrome-version: << parameters.chrome-version >>
-      - checkout
+      - <<: *checkout_https
       - <<: *restore_node_modules_cache
       - run: PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome npm run coverage
   lint:
     <<: *defaults
     steps:
-      - checkout
+      - <<: *checkout_https
       - <<: *restore_node_modules_cache
       - run: npm run lint
   release_next:
     <<: *defaults
     steps:
-      - checkout
+      - <<: *checkout_https
       - <<: *restore_node_modules_cache
       - <<: *npm_auth
       # Tag develop commits with commit hash and push out with next tag
@@ -78,7 +86,7 @@ jobs:
   release:
     <<: *defaults
     steps:
-      - checkout
+      - <<: *checkout_https
       - <<: *restore_node_modules_cache
       - <<: *npm_auth
       - run: npm publish
